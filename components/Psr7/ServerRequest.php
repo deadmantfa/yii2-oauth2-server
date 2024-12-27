@@ -1,11 +1,11 @@
 <?php
-namespace chervand\yii2\oauth2\server\components\Psr7;
+namespace deadmantfa\yii2\oauth2\server\components\Psr7;
 
 use yii\web\Request;
 
 /**
  * Class ServerRequest
- * @package chervand\yii2\oauth2\server\components\Psr7
+ * @package deadmantfa\yii2\oauth2\server\components\Psr7
  *
  * @link https://github.com/yiisoft/yii2/issues/11328
  */

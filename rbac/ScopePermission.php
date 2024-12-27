@@ -1,13 +1,13 @@
 <?php
 
-namespace chervand\yii2\oauth2\server\rbac;
+namespace deadmantfa\yii2\oauth2\server\rbac;
 
 use yii\base\Configurable;
 use yii\rbac\ManagerInterface;
 
 /**
  * Class ScopePermission
- * @package chervand\yii2\oauth2\server\rbac
+ * @package deadmantfa\yii2\oauth2\server\rbac
  */
 class ScopePermission extends Permission implements Configurable
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace chervand\yii2\oauth2\server\components\Server;
+namespace deadmantfa\yii2\oauth2\server\components\Server;
 
-use chervand\yii2\oauth2\server\components\Events\AuthorizationEvent;
-use chervand\yii2\oauth2\server\components\Grant\RevokeGrant;
-use chervand\yii2\oauth2\server\components\ResponseTypes\RevokeResponse;
+use deadmantfa\yii2\oauth2\server\components\Events\AuthorizationEvent;
+use deadmantfa\yii2\oauth2\server\components\Grant\RevokeGrant;
+use deadmantfa\yii2\oauth2\server\components\ResponseTypes\RevokeResponse;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use Psr\Http\Message\ResponseInterface;

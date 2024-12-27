@@ -1,6 +1,6 @@
 <?php
 
-namespace chervand\yii2\oauth2\server\components\Events;
+namespace deadmantfa\yii2\oauth2\server\components\Events;
 
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Token;

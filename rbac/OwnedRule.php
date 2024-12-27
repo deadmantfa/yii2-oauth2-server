@@ -1,6 +1,6 @@
 <?php
 
-namespace chervand\yii2\oauth2\server\rbac;
+namespace deadmantfa\yii2\oauth2\server\rbac;
 
 use yii\rbac\Rule;
 

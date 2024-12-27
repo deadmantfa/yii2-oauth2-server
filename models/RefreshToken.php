@@ -1,6 +1,6 @@
 <?php
 
-namespace chervand\yii2\oauth2\server\models;
+namespace deadmantfa\yii2\oauth2\server\models;
 
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
@@ -9,7 +9,7 @@ use yii\db\ActiveRecord;
 
 /**
  * Class RefreshToken
- * @package chervand\yii2\oauth2\server\models
+ * @package deadmantfa\yii2\oauth2\server\models
  *
  * @property integer $id
  * @property integer $access_token_id

@@ -1,5 +1,5 @@
 {
-  "name": "chervand/yii2-oauth2-server",
+  "name": "deadmantfa/yii2-oauth2-server",
   "description": "OAuth 2.0 server for Yii 2.0 with MAC tokens support.",
   "license": "MIT",
   "keywords": [
@@ -26,23 +26,38 @@
     {
       "name": "chervand",
       "email": "chervand@gmail.com"
+    },
+    {
+      "name": "deadmantfa",
+      "email": "wenceslausdsilva@gmail.com"
     }
   ],
   "require": {
-    "php": ">=5.6.0",
+    "php": ">=5.6.0 || ^7.0 || ^8.1",
     "yiisoft/yii2": "^2.0",
-    "league/oauth2-server": "^6.1",
-    "guzzlehttp/guzzle": "^6.3",
-    "lcobucci/jwt": "3.3.2"
+    "league/oauth2-server": "^9.1",
+    "guzzlehttp/guzzle": "^7.0",
+    "lcobucci/jwt": "^5.4.2"
   },
   "autoload": {
     "psr-4": {
-      "chervand\\yii2\\oauth2\\server\\": "/"
+      "deadmantfa\\yii2\\oauth2\\server\\": "/"
     }
   },
   "extra": {
     "branch-alias": {
       "dev-master": "1.0.x-dev"
+    }
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://asset-packagist.org"
+    }
+  ],
+  "config": {
+    "allow-plugins": {
+      "yiisoft/yii2-composer": true
     }
   }
 }

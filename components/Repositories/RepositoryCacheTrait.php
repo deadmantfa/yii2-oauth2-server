@@ -1,6 +1,6 @@
 <?php
 
-namespace chervand\yii2\oauth2\server\components\Repositories;
+namespace deadmantfa\yii2\oauth2\server\components\Repositories;
 
 trait RepositoryCacheTrait
 {

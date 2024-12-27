@@ -1,14 +1,14 @@
 <?php
-namespace chervand\yii2\oauth2\server\components\ResponseTypes;
+namespace deadmantfa\yii2\oauth2\server\components\ResponseTypes;
 
-use chervand\yii2\oauth2\server\models\AccessToken;
+use deadmantfa\yii2\oauth2\server\models\AccessToken;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\ResponseTypes\AbstractResponseType;
 use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class MacTokenResponse
- * @package chervand\yii2\oauth2\server\components
+ * @package deadmantfa\yii2\oauth2\server\components
  *
  * @link https://tools.ietf.org/html/draft-ietf-oauth-v2-http-mac-05
  *

@@ -1,6 +1,6 @@
 <?php
 
-namespace chervand\yii2\oauth2\server\models;
+namespace deadmantfa\yii2\oauth2\server\models;
 
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Key;
@@ -16,7 +16,7 @@ use yii\helpers\ArrayHelper;
 
 /**
  * Class AccessToken
- * @package chervand\yii2\oauth2\server\models
+ * @package deadmantfa\yii2\oauth2\server\models
  *
  * @property integer $id
  * @property integer $client_id

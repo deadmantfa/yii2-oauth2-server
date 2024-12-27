@@ -1,5 +1,5 @@
 <?php
-namespace chervand\yii2\oauth2\server\components;
+namespace deadmantfa\yii2\oauth2\server\components;
 
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Token;
@@ -9,7 +9,7 @@ use yii\helpers\VarDumper;
 
 /**
  * Class Mac
- * @package chervand\yii2\oauth2\server\components
+ * @package deadmantfa\yii2\oauth2\server\components
  *
  * @property $kid
  * @property $ts

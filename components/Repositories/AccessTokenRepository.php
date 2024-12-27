@@ -3,11 +3,11 @@
  *
  */
 
-namespace chervand\yii2\oauth2\server\components\Repositories;
+namespace deadmantfa\yii2\oauth2\server\components\Repositories;
 
-use chervand\yii2\oauth2\server\models\AccessToken;
-use chervand\yii2\oauth2\server\models\Client;
-use chervand\yii2\oauth2\server\models\Scope;
+use deadmantfa\yii2\oauth2\server\models\AccessToken;
+use deadmantfa\yii2\oauth2\server\models\Client;
+use deadmantfa\yii2\oauth2\server\models\Scope;
 use League\OAuth2\Server\CryptTrait;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
@@ -21,7 +21,7 @@ use yii\helpers\ArrayHelper;
 
 /**
  * Class AccessTokenRepository
- * @package chervand\yii2\oauth2\server\components\Repositories
+ * @package deadmantfa\yii2\oauth2\server\components\Repositories
  */
 abstract class AccessTokenRepository implements AccessTokenRepositoryInterface, RepositoryCacheInterface
 {

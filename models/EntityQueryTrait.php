@@ -1,5 +1,5 @@
 <?php
-namespace chervand\yii2\oauth2\server\models;
+namespace deadmantfa\yii2\oauth2\server\models;
 
 use yii\db\ActiveRecord;
 

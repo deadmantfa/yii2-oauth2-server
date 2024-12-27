@@ -3,13 +3,13 @@
  *
  */
 
-namespace chervand\yii2\oauth2\server\models;
+namespace deadmantfa\yii2\oauth2\server\models;
 
 use yii\db\ActiveQuery;
 
 /**
  * Class ClientQuery
- * @package chervand\yii2\oauth2\server\models
+ * @package deadmantfa\yii2\oauth2\server\models
  */
 class ClientQuery extends ActiveQuery
 {

@@ -1,11 +1,11 @@
 <?php
 
-namespace chervand\yii2\oauth2\server\components\AuthMethods;
+namespace deadmantfa\yii2\oauth2\server\components\AuthMethods;
 
-use chervand\yii2\oauth2\server\components\Exception\OAuthHttpException;
-use chervand\yii2\oauth2\server\components\Psr7\ServerRequest;
-use chervand\yii2\oauth2\server\components\Repositories\RepositoryCacheInterface;
-use chervand\yii2\oauth2\server\components\Server\ResourceServer;
+use deadmantfa\yii2\oauth2\server\components\Exception\OAuthHttpException;
+use deadmantfa\yii2\oauth2\server\components\Psr7\ServerRequest;
+use deadmantfa\yii2\oauth2\server\components\Repositories\RepositoryCacheInterface;
+use deadmantfa\yii2\oauth2\server\components\Server\ResourceServer;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;

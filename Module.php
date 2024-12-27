@@ -1,21 +1,21 @@
 <?php
 
-namespace chervand\yii2\oauth2\server;
+namespace deadmantfa\yii2\oauth2\server;
 
-use chervand\yii2\oauth2\server\components\Psr7\ServerRequest;
-use chervand\yii2\oauth2\server\components\Psr7\ServerResponse;
-use chervand\yii2\oauth2\server\components\Repositories\BearerTokenRepository;
-use chervand\yii2\oauth2\server\components\Repositories\ClientRepository;
-use chervand\yii2\oauth2\server\components\Repositories\MacTokenRepository;
-use chervand\yii2\oauth2\server\components\Repositories\RefreshTokenRepository;
-use chervand\yii2\oauth2\server\components\Repositories\RepositoryCacheInterface;
-use chervand\yii2\oauth2\server\components\Repositories\ScopeRepository;
-use chervand\yii2\oauth2\server\components\ResponseTypes\MacTokenResponse;
-use chervand\yii2\oauth2\server\components\Server\AuthorizationServer;
-use chervand\yii2\oauth2\server\controllers\AuthorizeController;
-use chervand\yii2\oauth2\server\controllers\RevokeController;
-use chervand\yii2\oauth2\server\controllers\TokenController;
-use chervand\yii2\oauth2\server\models\Client;
+use deadmantfa\yii2\oauth2\server\components\Psr7\ServerRequest;
+use deadmantfa\yii2\oauth2\server\components\Psr7\ServerResponse;
+use deadmantfa\yii2\oauth2\server\components\Repositories\BearerTokenRepository;
+use deadmantfa\yii2\oauth2\server\components\Repositories\ClientRepository;
+use deadmantfa\yii2\oauth2\server\components\Repositories\MacTokenRepository;
+use deadmantfa\yii2\oauth2\server\components\Repositories\RefreshTokenRepository;
+use deadmantfa\yii2\oauth2\server\components\Repositories\RepositoryCacheInterface;
+use deadmantfa\yii2\oauth2\server\components\Repositories\ScopeRepository;
+use deadmantfa\yii2\oauth2\server\components\ResponseTypes\MacTokenResponse;
+use deadmantfa\yii2\oauth2\server\components\Server\AuthorizationServer;
+use deadmantfa\yii2\oauth2\server\controllers\AuthorizeController;
+use deadmantfa\yii2\oauth2\server\controllers\RevokeController;
+use deadmantfa\yii2\oauth2\server\controllers\TokenController;
+use deadmantfa\yii2\oauth2\server\models\Client;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
@@ -36,7 +36,7 @@ use yii\web\GroupUrlRule;
 
 /**
  * Class Module
- * @package chervand\yii2\oauth2\server
+ * @package deadmantfa\yii2\oauth2\server
  *
  * @property-read AuthorizationServer $authorizationServer
  * @property-read AccessTokenRepositoryInterface $accessTokenRepository

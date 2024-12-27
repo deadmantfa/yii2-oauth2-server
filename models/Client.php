@@ -3,10 +3,10 @@
  *
  */
 
-namespace chervand\yii2\oauth2\server\models;
+namespace deadmantfa\yii2\oauth2\server\models;
 
-use chervand\yii2\oauth2\server\components\ResponseTypes\BearerTokenResponse;
-use chervand\yii2\oauth2\server\components\ResponseTypes\MacTokenResponse;
+use deadmantfa\yii2\oauth2\server\components\ResponseTypes\BearerTokenResponse;
+use deadmantfa\yii2\oauth2\server\components\ResponseTypes\MacTokenResponse;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use yii\db\ActiveQuery;
@@ -15,7 +15,7 @@ use yii\helpers\ArrayHelper;
 
 /**
  * Class Client
- * @package chervand\yii2\oauth2\server\models
+ * @package deadmantfa\yii2\oauth2\server\models
  *
  * @property integer $id
  * @property string $identifier

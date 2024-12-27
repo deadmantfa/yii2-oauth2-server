@@ -1,10 +1,10 @@
 <?php
 
-namespace chervand\yii2\oauth2\server\controllers;
+namespace deadmantfa\yii2\oauth2\server\controllers;
 
-use chervand\yii2\oauth2\server\components\Exception\OAuthHttpException;
-use chervand\yii2\oauth2\server\models\AccessToken;
-use chervand\yii2\oauth2\server\Module;
+use deadmantfa\yii2\oauth2\server\components\Exception\OAuthHttpException;
+use deadmantfa\yii2\oauth2\server\models\AccessToken;
+use deadmantfa\yii2\oauth2\server\Module;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use yii\helpers\Json;
 use yii\rest\ActiveController;

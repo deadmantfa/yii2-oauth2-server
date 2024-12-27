@@ -3,7 +3,7 @@
  *
  */
 
-namespace chervand\yii2\oauth2\server\components\Grant;
+namespace deadmantfa\yii2\oauth2\server\components\Grant;
 
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Rsa\Sha256;

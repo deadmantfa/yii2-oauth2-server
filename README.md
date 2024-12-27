@@ -18,7 +18,7 @@ See [OAuth 2.0 Server installation](https://oauth2.thephpleague.com/installation
 
 ### Integrating with your users
 
-To integrate OAuth 2.0 server with your users DB, you should implement `League\OAuth2\Server\Repositories\UserRepositoryInterface` for a `user` component's `identityClass` which should be extended from `chervand\yii2\oauth2\server\models\AccessToken`. `League\OAuth2\Server\Repositories\UserRepositoryInterface::getUserEntityByUserCredentials()` should return your user model instance implementing `League\OAuth2\Server\Entities\UserEntityInterface` or `null`. You may additionally add a foreign key for the `auth__access_token.user_id` column referencing your users table. You mau also override `getRateLimit()` to provider ` yii\filters\RateLimitInterface` with required values.
+To integrate OAuth 2.0 server with your users DB, you should implement `League\OAuth2\Server\Repositories\UserRepositoryInterface` for a `user` component's `identityClass` which should be extended from `deadmantfa\yii2\oauth2\server\models\AccessToken`. `League\OAuth2\Server\Repositories\UserRepositoryInterface::getUserEntityByUserCredentials()` should return your user model instance implementing `League\OAuth2\Server\Entities\UserEntityInterface` or `null`. You may additionally add a foreign key for the `auth__access_token.user_id` column referencing your users table. You mau also override `getRateLimit()` to provider ` yii\filters\RateLimitInterface` with required values.
 
 ```php
 <?php 
@@ -56,7 +56,7 @@ return [
     ],
     'modules' => [
         'oauth2' => [
-            'class' => \chervand\yii2\oauth2\server\Module::class,
+            'class' => \deadmantfa\yii2\oauth2\server\Module::class,
             'privateKey' => __DIR__ . '/../private.key',
             'publicKey' => __DIR__ . '/../public.key',
             'cache' => [
@@ -69,7 +69,7 @@ return [
                     'cacheDependency' => new \yii\caching\FileDependency(['fileName' => 'example.txt']),
                 ],
             ],
-            'enableGrantTypes' => function (\chervand\yii2\oauth2\server\Module &$module) {
+            'enableGrantTypes' => function (\deadmantfa\yii2\oauth2\server\Module &$module) {
                 $server = $module->authorizationServer;
                 $server->enableGrantType(new \League\OAuth2\Server\Grant\ImplicitGrant(
                     new \DateInterval('PT1H')
@@ -82,7 +82,7 @@ return [
                 $server->enableGrantType(new \League\OAuth2\Server\Grant\RefreshTokenGrant(
                     $module->refreshTokenRepository
                 ));
-                $server->enableGrantType(new \chervand\yii2\oauth2\server\components\Grant\RevokeGrant(
+                $server->enableGrantType(new \deadmantfa\yii2\oauth2\server\components\Grant\RevokeGrant(
                     $module->refreshTokenRepository,
                     $module->publicKey
                 ));
@@ -110,19 +110,19 @@ class ActiveController extends \yii\rest\ActiveController
         unset($behaviors['authenticator']);
         unset($behaviors['rateLimiter']);
 
-        /** @var \chervand\yii2\oauth2\server\Module $auth */
+        /** @var \deadmantfa\yii2\oauth2\server\Module $auth */
         $auth = \Yii::$app->getModule('oauth2');
 
         $behaviors['authenticator'] = [
             'class' => \yii\filters\auth\CompositeAuth::class,
             'authMethods' => [
                 [
-                    'class' => \chervand\yii2\oauth2\server\components\AuthMethods\HttpMacAuth::class,
+                    'class' => \deadmantfa\yii2\oauth2\server\components\AuthMethods\HttpMacAuth::class,
                     'publicKey' => $auth->publicKey,
                     'cache' => $auth->cache,
                 ],
                 [
-                    'class' => \chervand\yii2\oauth2\server\components\AuthMethods\HttpBearerAuth::class,
+                    'class' => \deadmantfa\yii2\oauth2\server\components\AuthMethods\HttpBearerAuth::class,
                     'publicKey' => $auth->publicKey,
                     'cache' => $auth->cache,
                 ],

@@ -1,8 +1,8 @@
 <?php
-namespace chervand\yii2\oauth2\server\components\AuthMethods;
+namespace deadmantfa\yii2\oauth2\server\components\AuthMethods;
 
-use chervand\yii2\oauth2\server\components\AuthorizationValidators\MacTokenValidator;
-use chervand\yii2\oauth2\server\components\Repositories\MacTokenRepository;
+use deadmantfa\yii2\oauth2\server\components\AuthorizationValidators\MacTokenValidator;
+use deadmantfa\yii2\oauth2\server\components\Repositories\MacTokenRepository;
 use League\OAuth2\Server\AuthorizationValidators\AuthorizationValidatorInterface;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 

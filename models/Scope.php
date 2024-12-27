@@ -1,5 +1,5 @@
 <?php
-namespace chervand\yii2\oauth2\server\models;
+namespace deadmantfa\yii2\oauth2\server\models;
 
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use yii\db\ActiveRecord;

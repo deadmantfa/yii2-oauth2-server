@@ -1,6 +1,6 @@
 <?php
 
-namespace chervand\yii2\oauth2\server\rbac;
+namespace deadmantfa\yii2\oauth2\server\rbac;
 
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
@@ -10,7 +10,7 @@ use yii\rbac\Rule;
 /**
  * Checks whether associated RBAC item was granted for the access token.
  *
- * @package chervand\yii2\oauth2\server\rbac
+ * @package deadmantfa\yii2\oauth2\server\rbac
  */
 class GrantedRule extends Rule
 {

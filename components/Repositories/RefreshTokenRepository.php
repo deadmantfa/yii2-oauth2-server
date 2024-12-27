@@ -1,8 +1,8 @@
 <?php
 
-namespace chervand\yii2\oauth2\server\components\Repositories;
+namespace deadmantfa\yii2\oauth2\server\components\Repositories;
 
-use chervand\yii2\oauth2\server\models\RefreshToken;
+use deadmantfa\yii2\oauth2\server\models\RefreshToken;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
@@ -12,7 +12,7 @@ use yii\caching\TagDependency;
 
 /**
  * Class RefreshTokenRepository
- * @package chervand\yii2\oauth2\server\components\Repositories
+ * @package deadmantfa\yii2\oauth2\server\components\Repositories
  */
 class RefreshTokenRepository extends Component implements RefreshTokenRepositoryInterface, RepositoryCacheInterface
 {

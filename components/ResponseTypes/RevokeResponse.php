@@ -1,13 +1,13 @@
 <?php
 
-namespace chervand\yii2\oauth2\server\components\ResponseTypes;
+namespace deadmantfa\yii2\oauth2\server\components\ResponseTypes;
 
 use League\OAuth2\Server\ResponseTypes\AbstractResponseType;
 use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class RevokeResponse
- * @package chervand\yii2\oauth2\server\components
+ * @package deadmantfa\yii2\oauth2\server\components
  * @link https://tools.ietf.org/html/rfc7009
  */
 class RevokeResponse extends AbstractResponseType

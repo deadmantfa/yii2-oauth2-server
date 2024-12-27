@@ -1,6 +1,6 @@
 <?php
 
-namespace chervand\yii2\oauth2\server\controllers;
+namespace deadmantfa\yii2\oauth2\server\controllers;
 
 use yii\rest\ActiveController;
 use yii\rest\OptionsAction;

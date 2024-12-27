@@ -1,8 +1,8 @@
 <?php
 
-namespace chervand\yii2\oauth2\server\components\AuthorizationValidators;
+namespace deadmantfa\yii2\oauth2\server\components\AuthorizationValidators;
 
-use chervand\yii2\oauth2\server\components\Mac;
+use deadmantfa\yii2\oauth2\server\components\Mac;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\ValidationData;

@@ -1,8 +1,8 @@
 <?php
 
-namespace chervand\yii2\oauth2\server\components\Repositories;
+namespace deadmantfa\yii2\oauth2\server\components\Repositories;
 
-use chervand\yii2\oauth2\server\models\AccessToken;
+use deadmantfa\yii2\oauth2\server\models\AccessToken;
 
 class MacTokenRepository extends AccessTokenRepository
 {
