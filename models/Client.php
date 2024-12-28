@@ -52,7 +52,7 @@ class Client extends ActiveRecord implements ClientEntityInterface
     /**
      * @var ResponseTypeInterface
      */
-    private $_responseType;
+    private ?ResponseTypeInterface $_responseType = null;
 
 
     /**
@@ -70,39 +70,35 @@ class Client extends ActiveRecord implements ClientEntityInterface
      * @param bool $mustValidateSecret
      * @return static|null
      */
+
     public static function findEntity(
-        $clientIdentifier,
-        $grantType,
-        $clientSecret = null,
-        $mustValidateSecret = true
-    ): null|static
+        string     $clientIdentifier,
+        string|int $grantType,
+        ?string    $clientSecret = null,
+        bool       $mustValidateSecret = true
+    ): ?static
     {
         try {
-
             $clientEntity = static::getDb()->cache(
-                function () use ($clientIdentifier, $grantType) {
-                    return static::find()
-                        ->active()
-                        ->identifier($clientIdentifier)
-                        ->grant($grantType)
-                        ->one();
-                }
+                fn() => static::find()
+                    ->active()
+                    ->identifier($clientIdentifier)
+                    ->grant($grantType)
+                    ->one()
             );
 
             if (
-                $clientEntity instanceof static
-                && (
-                    $clientEntity->getIsConfidential() !== true
-                    || $mustValidateSecret !== true
-                    || static::secretVerify($clientSecret, $clientEntity->secret) === true
+                $clientEntity instanceof static &&
+                (
+                    !$clientEntity->getIsConfidential() ||
+                    !$mustValidateSecret ||
+                    static::secretVerify($clientSecret, $clientEntity->secret)
                 )
             ) {
-
                 return $clientEntity;
             }
-
-        } catch (Throwable $exception) {
-
+        } catch (Throwable $e) {
+            // Log or handle exception if necessary
         }
 
         return null;
@@ -122,9 +118,9 @@ class Client extends ActiveRecord implements ClientEntityInterface
         return $this->secret !== null;
     }
 
-    public static function secretVerify($secret, $hash): bool
+    public static function secretVerify(?string $secret, string $hash): bool
     {
-        return password_verify($secret, $hash);
+        return $secret !== null && password_verify($secret, $hash);
     }
 
     /**
@@ -175,19 +171,13 @@ class Client extends ActiveRecord implements ClientEntityInterface
         return $this->redirect_uri;
     }
 
-    public function getResponseType(): MacTokenResponse|ResponseTypeInterface|BearerTokenResponse
+
+    public function getResponseType(): ResponseTypeInterface
     {
-        if (!$this->_responseType instanceof ResponseTypeInterface) {
-
-            if (
-                isset($this->token_type)
-                && $this->token_type === static::TOKEN_TYPE_MAC
-            ) {
-                $this->_responseType = new MacTokenResponse();
-            } else {
-                $this->_responseType = new BearerTokenResponse();
-            }
-
+        if ($this->_responseType === null) {
+            $this->_responseType = $this->token_type === self::TOKEN_TYPE_MAC
+                ? new MacTokenResponse()
+                : new BearerTokenResponse();
         }
 
         return $this->_responseType;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace deadmantfa\yii2\oauth2\server\models;
 
 use yii\db\ActiveQuery;
@@ -7,9 +9,11 @@ use yii\db\ActiveQuery;
 trait TokenQueryTrait
 {
     /**
-     * @return ActiveQuery|static
+     * Filters active tokens.
+     *
+     * @return TokenQueryTrait
      */
-    public function active()
+    public function active(): static
     {
         /** @var ActiveQuery $this */
         /** @var AccessToken|RefreshToken $modelClass */
@@ -18,9 +22,11 @@ trait TokenQueryTrait
     }
 
     /**
-     * @return ClientQuery|ActiveQuery
+     * Filters revoked tokens.
+     *
+     * @return TokenQueryTrait
      */
-    public function revoked()
+    public function revoked(): static
     {
         /** @var ActiveQuery $this */
         /** @var AccessToken|RefreshToken $modelClass */

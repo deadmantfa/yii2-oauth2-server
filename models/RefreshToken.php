@@ -26,7 +26,7 @@ use yii\db\ActiveRecord;
 class RefreshToken extends ActiveRecord implements RefreshTokenEntityInterface
 {
     use EntityTrait;
-    use RefreshTokenTrait; // todo: get rid of this
+    use RefreshTokenTrait;
 
     const STATUS_ACTIVE = 1;
     const STATUS_REVOKED = -10;
@@ -35,7 +35,7 @@ class RefreshToken extends ActiveRecord implements RefreshTokenEntityInterface
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%auth__refresh_token}}';
     }
@@ -44,7 +44,7 @@ class RefreshToken extends ActiveRecord implements RefreshTokenEntityInterface
      * {@inheritdoc}
      * @return RefreshTokenQuery
      */
-    public static function find()
+    public static function find(): RefreshTokenQuery
     {
         return new RefreshTokenQuery(get_called_class());
     }
@@ -52,7 +52,7 @@ class RefreshToken extends ActiveRecord implements RefreshTokenEntityInterface
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['access_token_id', 'identifier'], 'required'],
@@ -64,12 +64,15 @@ class RefreshToken extends ActiveRecord implements RefreshTokenEntityInterface
         ];
     }
 
+
     /**
-     * {@inheritdoc}
+     * Returns the related `AccessToken` entity.
+     *
+     * @return AccessTokenEntityInterface
      */
-    public function getAccessToken()
+    public function getAccessToken(): AccessTokenEntityInterface
     {
-        return $this->hasOne(AccessToken::class, ['id' => 'access_token_id'])/* todo: ->inverseOf('refreshTokens')*/;
+        return $this->hasOne(AccessToken::class, ['id' => 'access_token_id'])->one();
     }
 
     /**
@@ -77,11 +80,11 @@ class RefreshToken extends ActiveRecord implements RefreshTokenEntityInterface
      *
      * @param AccessTokenEntityInterface|ActiveRecord $accessToken
      */
-    public function setAccessToken(AccessTokenEntityInterface $accessToken)
+    public function setAccessToken(AccessTokenEntityInterface $accessToken): void
     {
         if (
-            !$this->isRelationPopulated('accessToken')
-            && $accessToken instanceof AccessToken
+            !$this->isRelationPopulated('accessToken') &&
+            $accessToken instanceof AccessToken
         ) {
             $this->setAttributes(['access_token_id' => $accessToken->getPrimaryKey()]);
             $this->populateRelation('accessToken', $accessToken);

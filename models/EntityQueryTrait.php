@@ -1,16 +1,22 @@
 <?php
+
+declare(strict_types=1);
+
 namespace deadmantfa\yii2\oauth2\server\models;
 
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 trait EntityQueryTrait
 {
     /**
-     * @param $identifier
+     * Filters by identifier.
+     *
+     * @param string|int $identifier
      * @param string|null $tableName
-     * @return \yii\db\ActiveQuery|static
+     * @return EntityQueryTrait
      */
-    public function identifier($identifier, $tableName = null)
+    public function identifier(string|int $identifier, ?string $tableName = null): static
     {
         if ($tableName === null) {
             /** @var ActiveRecord $modelClass */
@@ -18,9 +24,7 @@ trait EntityQueryTrait
             $tableName = $modelClass::tableName();
         }
 
-        /** @var \yii\db\ActiveQuery $this */
-        return $this->andWhere([
-            $tableName . '.`identifier`' => $identifier
-        ]);
+        /** @var ActiveQuery $this */
+        return $this->andWhere([$tableName . '.`identifier`' => $identifier]);
     }
 }
