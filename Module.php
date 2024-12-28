@@ -61,17 +61,26 @@ class Module extends \yii\base\Module implements BootstrapInterface
         }
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     public function init(): void
     {
         parent::init();
 
-        if (!$this->privateKey instanceof CryptKey) {
-            $this->privateKey = new CryptKey($this->privateKey);
-        }
+        $this->privateKey = $this->createCryptKey($this->privateKey);
+        $this->publicKey = $this->createCryptKey($this->publicKey);
+    }
 
-        if (!$this->publicKey instanceof CryptKey) {
-            $this->publicKey = new CryptKey($this->publicKey);
+    /**
+     * @throws InvalidConfigException
+     */
+    protected function createCryptKey(string $keyPath): CryptKey
+    {
+        if (!file_exists($keyPath)) {
+            throw new InvalidConfigException("Key file not found: $keyPath");
         }
+        return new CryptKey($keyPath);
     }
 
     /**
@@ -81,12 +90,11 @@ class Module extends \yii\base\Module implements BootstrapInterface
     {
         if (!$this->_authorizationServer instanceof AuthorizationServer) {
             $this->_authorizationServer = new AuthorizationServer(
-                $this->getClientRepository(),
-                $this->getAccessTokenRepository(),
-                $this->getScopeRepository(),
+                $this->getComponent('clientRepository'),
+                $this->getComponent('accessTokenRepository'),
+                $this->getComponent('scopeRepository'),
                 $this->privateKey,
-                $this->encryptionKey,
-                $this->_responseType
+                $this->encryptionKey
             );
 
             if (is_callable($this->enableGrantTypes)) {
@@ -97,6 +105,17 @@ class Module extends \yii\base\Module implements BootstrapInterface
         }
 
         return $this->_authorizationServer;
+    }
+
+    /**
+     * @throws InvalidConfigException
+     */
+    public function getComponent(string $name): object
+    {
+        if (!isset($this->components[$name])) {
+            throw new InvalidConfigException("Component '$name' is not configured.");
+        }
+        return Yii::createObject($this->components[$name]);
     }
 
     /**
