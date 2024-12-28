@@ -1,81 +1,50 @@
 <?php
-/**
- *
- */
+
+declare(strict_types=1);
 
 namespace deadmantfa\yii2\oauth2\server\components\Grant;
 
-use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Signer\Rsa\Sha256;
+use DateInterval;
+use Exception;
+use Lcobucci\JWT\Configuration;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AbstractGrant;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\RequestEvent;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
+use LogicException;
 use Psr\Http\Message\ServerRequestInterface;
 
 class RevokeGrant extends AbstractGrant
 {
-    /**
-     * @var \League\OAuth2\Server\CryptKey
-     */
-    protected $publicKey;
+    protected CryptKey $publicKey;
+    protected Configuration $jwtConfig;
 
-
-    /**
-     * RevokeGrant constructor.
-     * @param RefreshTokenRepositoryInterface $refreshTokenRepository
-     * @param CryptKey $publicKey
-     */
-    public function __construct(RefreshTokenRepositoryInterface $refreshTokenRepository, CryptKey $publicKey)
+    public function __construct(
+        RefreshTokenRepositoryInterface $refreshTokenRepository,
+        CryptKey                        $publicKey,
+        Configuration                   $jwtConfig
+    )
     {
         $this->setRefreshTokenRepository($refreshTokenRepository);
-        $this->setPublicKey($publicKey);
+        $this->publicKey = $publicKey;
+        $this->jwtConfig = $jwtConfig;
     }
 
-    public function setPublicKey(CryptKey $key)
-    {
-        $this->publicKey = $key;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getIdentifier()
-    {
-        return 'revoke';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function respondToAccessTokenRequest(
         ServerRequestInterface $request,
-        ResponseTypeInterface $responseType,
-        \DateInterval $accessTokenTTL
-    )
+        ResponseTypeInterface  $responseType,
+        DateInterval           $accessTokenTTL
+    ): ResponseTypeInterface
     {
-        throw new \LogicException('This grant does not used this method');
+        throw new LogicException('This grant does not use this method.');
     }
 
-    /**
-     * "Note: invalid tokens do not cause an error response since the client
-     * cannot handle such an error in a reasonable way. Moreover, the
-     * purpose of the revocation request, invalidating the particular token,
-     * is already achieved."
-     *
-     * @see https://tools.ietf.org/html/rfc7009#section-2.2
-     *
-     * @param ServerRequestInterface $request
-     * @param ResponseTypeInterface $response
-     * @return mixed
-     * @throws OAuthServerException
-     */
     public function respondToRevokeTokenRequest(
         ServerRequestInterface $request,
-        ResponseTypeInterface $response
-    )
+        ResponseTypeInterface  $response
+    ): ResponseTypeInterface
     {
         $client = $this->validateClient($request);
         $this->invalidateToken($request, $client->getIdentifier());
@@ -84,84 +53,78 @@ class RevokeGrant extends AbstractGrant
     }
 
     /**
-     * "If the server is unable to locate the token using
-     * the given hint, it MUST extend its search across all of its
-     * supported token types."
-     *
-     * @see https://tools.ietf.org/html/rfc7009#section-2.1
-     *
-     * @param ServerRequestInterface $request
-     * @param $clientId
+     * @throws OAuthServerException
      */
-    protected function invalidateToken(ServerRequestInterface $request, $clientId)
+    protected function invalidateToken(ServerRequestInterface $request, string $clientId): void
     {
-        $tokenTypeHint = $this->getRequestParameter('token_type_hint', $request);
-
-        $callStack = $tokenTypeHint == 'refresh_token'
+        $tokenTypeHint = $this->getRequestParameter('token_type_hint', $request) ?? '';
+        $callStack = $tokenTypeHint === 'refresh_token'
             ? ['invalidateRefreshToken', 'invalidateAccessToken']
             : ['invalidateAccessToken', 'invalidateRefreshToken'];
 
         foreach ($callStack as $function) {
-            if (call_user_func([$this, $function], $request, $clientId) === true) {
+            if ($this->$function($request, $clientId)) {
                 break;
             }
         }
     }
 
+    public function getIdentifier(): string
+    {
+        return 'revoke';
+    }
+
     /**
-     * @param ServerRequestInterface $request
-     * @param $clientId
-     * @return bool
+     * @throws OAuthServerException
      */
-    protected function invalidateAccessToken(ServerRequestInterface $request, $clientId)
+    protected function invalidateAccessToken(ServerRequestInterface $request, string $clientId): bool
     {
         $accessToken = $this->getRequestParameter('token', $request);
-        if (is_null($accessToken)) {
+        if (!$accessToken) {
             throw OAuthServerException::invalidRequest('token');
         }
 
         try {
-            $token = (new Parser())->parse($accessToken);
-        } catch (\Exception $exception) {
+            $token = $this->jwtConfig->parser()->parse($accessToken);
+        } catch (Exception $e) {
             return false;
         }
 
-        if ($token->verify(new Sha256(), $this->publicKey->getKeyPath()) === false) {
-            throw OAuthServerException::accessDenied('Access token could not be verified');
+        $constraints = $this->jwtConfig->validationConstraints();
+        if (!$this->jwtConfig->validator()->validate($token, ...$constraints)) {
+            throw OAuthServerException::accessDenied('Access token could not be verified.');
         }
 
-        if ($token->getClaim('aud') !== $clientId) {
+        $claims = $token->claims();
+        if ($claims->get('aud') !== $clientId) {
             $this->getEmitter()->emit(new RequestEvent(RequestEvent::REFRESH_TOKEN_CLIENT_FAILED, $request));
-            throw OAuthServerException::invalidRefreshToken('Token is not linked to client');
+            throw OAuthServerException::invalidRefreshToken('Token is not linked to client.');
         }
 
-        $this->accessTokenRepository->revokeAccessToken($token->getClaim('jti'));
-
+        $this->accessTokenRepository->revokeAccessToken($claims->get('jti'));
         return true;
     }
 
     /**
-     * @param ServerRequestInterface $request
-     * @param $clientId
-     * @return bool
+     * @throws OAuthServerException
      */
-    protected function invalidateRefreshToken(ServerRequestInterface $request, $clientId)
+    protected function invalidateRefreshToken(ServerRequestInterface $request, string $clientId): bool
     {
         $encryptedRefreshToken = $this->getRequestParameter('token', $request);
-        if (is_null($encryptedRefreshToken)) {
+        if (!$encryptedRefreshToken) {
             throw OAuthServerException::invalidRequest('token');
         }
 
         try {
             $refreshToken = $this->decrypt($encryptedRefreshToken);
-        } catch (\Exception $exception) {
+        } catch (Exception $e) {
             return false;
         }
 
         $refreshTokenData = json_decode($refreshToken, true);
         if ($refreshTokenData['client_id'] !== $clientId) {
             $this->getEmitter()->emit(new RequestEvent(RequestEvent::REFRESH_TOKEN_CLIENT_FAILED, $request));
-            throw OAuthServerException::invalidRefreshToken('Token is not linked to client');
+            throw OAuthServerException::invalidRefreshToken('Token is not linked to client.');
         }
 
         $this->accessTokenRepository->revokeAccessToken($refreshTokenData['access_token_id']);

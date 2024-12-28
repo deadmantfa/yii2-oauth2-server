@@ -1,41 +1,76 @@
 <?php
 
+declare(strict_types=1);
+
 namespace deadmantfa\yii2\oauth2\server\components\Server;
 
 use deadmantfa\yii2\oauth2\server\components\Events\AuthorizationEvent;
 use deadmantfa\yii2\oauth2\server\components\Grant\RevokeGrant;
 use deadmantfa\yii2\oauth2\server\components\ResponseTypes\RevokeResponse;
+use Lcobucci\Clock\SystemClock;
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Signer\Rsa\Sha256;
+use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
 use League\OAuth2\Server\Exception\OAuthServerException;
-use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class AuthorizationServer extends \League\OAuth2\Server\AuthorizationServer
 {
     /**
-     * {@inheritdoc}
+     * Handles the token request and emits an authorization event.
+     *
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @return ResponseInterface
+     * @throws OAuthServerException
      */
     public function respondToAccessTokenRequest(
         ServerRequestInterface $request,
-        ResponseInterface $response
-    )
+        ResponseInterface      $response
+    ): ResponseInterface
     {
         $response = parent::respondToAccessTokenRequest($request, $response);
 
-        if ($response instanceof ResponseInterface) {
-            $this->getEmitter()->emit(
-                new AuthorizationEvent(
-                    AuthorizationEvent::USER_AUTHENTICATION_SUCCEED,
-                    $request,
-                    $response
-                )
-            );
-        }
+        // Emit the authorization event
+        $this->getEmitter()->emit(
+            new AuthorizationEvent(
+                $request,
+                $response,
+                $this->getJwtConfiguration() // Ensure JWT configuration is passed
+            )
+        );
 
         return $response;
     }
 
     /**
+     * Returns the JWT configuration instance for token parsing and validation.
+     *
+     * @return Configuration
+     */
+    private function getJwtConfiguration(): Configuration
+    {
+        // Use a proper RSA key for signing and validation
+        $signer = new Sha256();
+        $publicKey = InMemory::file('/path/to/public.key'); // Replace with actual public key path
+        $privateKey = InMemory::file('/path/to/private.key'); // Replace with actual private key path
+
+        // Create JWT Configuration
+        $jwtConfig = Configuration::forAsymmetricSigner($signer, $privateKey, $publicKey);
+
+        // Set validation constraints
+        $jwtConfig->setValidationConstraints(
+            new StrictValidAt(new SystemClock())
+        );
+
+        return $jwtConfig;
+    }
+
+    /**
+     * Handles token revocation requests.
+     *
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @return ResponseInterface
@@ -43,24 +78,16 @@ class AuthorizationServer extends \League\OAuth2\Server\AuthorizationServer
      */
     public function respondToRevokeTokenRequest(
         ServerRequestInterface $request,
-        ResponseInterface $response
-    )
+        ResponseInterface      $response
+    ): ResponseInterface
     {
-        if (
-            array_key_exists('revoke', $this->enabledGrantTypes) === true
-            && $this->enabledGrantTypes['revoke'] instanceof RevokeGrant
-        ) {
+        $revokeGrant = $this->enabledGrantTypes['revoke'] ?? null;
 
+        if ($revokeGrant instanceof RevokeGrant) {
             $this->responseType = new RevokeResponse();
-
-            /** @var RevokeGrant $revokeGrant */
-            $revokeGrant = $this->enabledGrantTypes['revoke'];
-            $revokeResponse = $revokeGrant->respondToRevokeTokenRequest($request, $this->getResponseType());
-
-            if ($revokeResponse instanceof ResponseTypeInterface) {
-                return $revokeResponse->generateHttpResponse($response);
-            }
-
+            return $revokeGrant
+                ->respondToRevokeTokenRequest($request, $this->getResponseType())
+                ->generateHttpResponse($response);
         }
 
         throw OAuthServerException::unsupportedGrantType();

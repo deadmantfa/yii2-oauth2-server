@@ -1,61 +1,48 @@
 <?php
+
+declare(strict_types=1);
+
 namespace deadmantfa\yii2\oauth2\server\components\AuthMethods;
 
 use deadmantfa\yii2\oauth2\server\components\AuthorizationValidators\BearerTokenValidator;
-use deadmantfa\yii2\oauth2\server\components\Repositories\BearerTokenRepository;
 use League\OAuth2\Server\AuthorizationValidators\AuthorizationValidatorInterface;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
+use Yii;
+use yii\base\InvalidConfigException;
 
 class HttpBearerAuth extends AuthMethod
 {
-    /**
-     * @var string the HTTP authentication realm
-     */
-    public $realm = 'api';
+    public string $realm = 'api';
 
-    private $_authorizationValidator;
-    private $_accessTokenRepository;
+    private ?AuthorizationValidatorInterface $_authorizationValidator = null;
+    private ?AccessTokenRepositoryInterface $_accessTokenRepository = null;
 
-
-    /**
-     * {@inheritdoc}
-     */
-    public function challenge($response)
+    public function challenge($response): void
     {
-        $response->getHeaders()->set('WWW-Authenticate', "Bearer realm=\"{$this->realm}\"");
+        $response->getHeaders()->set('WWW-Authenticate', "Bearer realm=\"$this->realm\"");
     }
 
-    /**
-     * @return string
-     */
-    protected function getTokenType()
+    protected function getTokenType(): string
     {
         return 'Bearer';
     }
 
-    /**
-     * @return AuthorizationValidatorInterface
-     * @throws \yii\base\InvalidConfigException
-     */
-    protected function getAuthorizationValidator()
+    protected function getAuthorizationValidator(): AuthorizationValidatorInterface
     {
-        if (!$this->_authorizationValidator instanceof AuthorizationValidatorInterface) {
+        if ($this->_authorizationValidator === null) {
             $this->_authorizationValidator = new BearerTokenValidator($this->getAccessTokenRepository());
         }
-
         return $this->_authorizationValidator;
     }
 
     /**
-     * @return AccessTokenRepositoryInterface
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
-    protected function getAccessTokenRepository()
+    protected function getAccessTokenRepository(): AccessTokenRepositoryInterface
     {
-        if (!$this->_accessTokenRepository instanceof AccessTokenRepositoryInterface) {
-            $this->_accessTokenRepository = new BearerTokenRepository();
+        if ($this->_accessTokenRepository === null) {
+            $this->_accessTokenRepository = Yii::createObject(AccessTokenRepositoryInterface::class);
         }
-
         return $this->_accessTokenRepository;
     }
 }

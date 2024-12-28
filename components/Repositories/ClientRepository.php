@@ -9,12 +9,14 @@ use yii\base\Component;
 
 class ClientRepository extends Component implements ClientRepositoryInterface
 {
-    /**
-     * Fetch client by identifier only (no secret or grant checks).
-     */
     public function getClientEntity(string $clientIdentifier): ?ClientEntityInterface
     {
-        return Client::findByIdentifier($clientIdentifier);
+        $client = Client::findByIdentifier($clientIdentifier);
+        if (!$client) {
+            return null;
+        }
+
+        return $client;
     }
 
     /**

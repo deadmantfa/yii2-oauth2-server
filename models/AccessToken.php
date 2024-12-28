@@ -1,15 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace deadmantfa\yii2\oauth2\server\models;
 
+use DateMalformedStringException;
+use DateTimeImmutable;
+use Exception;
 use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Signer\Key;
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use League\OAuth2\Server\CryptKey;
+use League\OAuth2\Server\CryptKeyInterface;
 use League\OAuth2\Server\CryptTrait;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
+use League\OAuth2\Server\Entities\ClientEntityInterface;
+use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Entities\Traits\AccessTokenTrait;
 use League\OAuth2\Server\Entities\Traits\TokenEntityTrait;
+use yii\base\InvalidConfigException;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\filters\RateLimitInterface;
 use yii\helpers\ArrayHelper;
@@ -40,7 +51,9 @@ use yii\helpers\ArrayHelper;
 class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, RateLimitInterface
 {
     use CryptTrait, EntityTrait;
-    use AccessTokenTrait, TokenEntityTrait; // todo: get rid of this
+    use AccessTokenTrait, TokenEntityTrait;
+
+    // todo: get rid of this
 
     const TYPE_BEARER = 1;
     const TYPE_MAC = 2;
@@ -55,7 +68,7 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%auth__access_token}}';
     }
@@ -64,16 +77,19 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
      * {@inheritdoc}
      * @return AccessTokenQuery
      */
-    public static function find()
+    public static function find(): AccessTokenQuery
     {
         return new AccessTokenQuery(get_called_class());
     }
 
-    public function getRelatedClient()
+    public function getRelatedClient(): ActiveQuery
     {
-        return $this->hasOne(Client::class, ['id' => 'client_id'])/* todo: ->inverseOf('accessTokens') */;
+        return $this->hasOne(Client::class, ['id' => 'client_id'])/* todo: ->inverseOf('accessTokens') */ ;
     }
 
+    /**
+     * @throws Exception
+     */
     public function getMacAlgorithm()
     {
         return ArrayHelper::getValue(
@@ -83,7 +99,7 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
         );
     }
 
-    public static function algorithms()
+    public static function algorithms(): array
     {
         return [
             static::MAC_ALGORITHM_HMAC_SHA1 => 'hmac-sha-1',
@@ -91,7 +107,7 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
         ];
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             [['client_id'], 'required'], // identifier
@@ -107,61 +123,56 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
         ];
     }
 
-    public function getGrantedScopes()
+    /**
+     * @throws InvalidConfigException
+     */
+    public function getGrantedScopes(): ActiveQuery
     {
         return $this->hasMany(Scope::class, ['id' => 'scope_id'])
             ->viaTable('{{auth__access_token_scope}}', ['access_token_id' => 'id']);
     }
 
     /**
-     * {@inheritDoc}
+     * {}
+     * @throws DateMalformedStringException
      */
-    public function convertToJWT(CryptKey $privateKey)
+
+
+    public function convertToJWT(CryptKey $privateKey): string
     {
-        $builder = (new Builder())
-            ->setAudience($this->getClient()->getIdentifier())
-            ->setId($this->getIdentifier(), true)
-            ->setIssuedAt(time())
-            ->setNotBefore(time())
-            ->setExpiration($this->getExpiryDateTime()->getTimestamp())
-            ->setSubject($this->getUserIdentifier())
-            ->set('scopes', $this->getScopes());
+        $signer = new Sha256();
+        $key = InMemory::file($privateKey->getKeyPath(), $privateKey->getPassPhrase());
 
-        if ($this->type == static::TYPE_MAC) {
-            $builder
-                ->setHeader('kid', $this->identifier)
-                ->set('kid', $this->identifier)
-                ->set('mac_key', $this->mac_key);
-        }
+        $jwtConfig = Configuration::forAsymmetricSigner($signer, $key, $key);
 
-        $builder = $this->finalizeJWTBuilder($builder);
+        $builder = $jwtConfig->builder()
+            ->issuedBy($this->getClient()->getIdentifier())
+            ->identifiedBy($this->getIdentifier())
+            ->issuedAt(new DateTimeImmutable())
+            ->expiresAt($this->getExpiryDateTime())
+            ->withClaim('scopes', $this->getScopes());
 
-        return $builder
-            ->sign(new Sha256(), new Key($privateKey->getKeyPath(), $privateKey->getPassPhrase()))
-            ->getToken();
+        return $jwtConfig->builder()->getToken($signer, $key)->toString();
     }
 
-    /**
-     * Override it in order to set additional public or private claims.
-     *
-     * @param Builder $builder
-     * @return Builder
-     * @see https://tools.ietf.org/html/rfc7519#section-4
-     */
-    protected function finalizeJWTBuilder(Builder $builder)
-    {
-        return $builder;
-    }
 
     /**
      * {@inheritdoc}
      */
-    public function getClient()
+    public function getClient(): ClientEntityInterface
     {
         return $this->relatedClient;
     }
 
-    public function getScopes()
+    /**
+     * @throws DateMalformedStringException
+     */
+    public function getExpiryDateTime(): DateTimeImmutable
+    {
+        return new DateTimeImmutable('@' . $this->expired_at);
+    }
+
+    public function getScopes(): array
     {
         if (empty($this->scopes)) {
             $this->scopes = $this->grantedScopes;
@@ -173,7 +184,15 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
     /**
      * {@inheritdoc}
      */
-    public function setUserIdentifier($identifier)
+    public function getUserIdentifier(): ?string
+    {
+        return (string)$this->user_id;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setUserIdentifier($identifier): void
     {
         $this->user_id = $identifier;
     }
@@ -181,15 +200,7 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
     /**
      * {@inheritdoc}
      */
-    public function getUserIdentifier()
-    {
-        return $this->user_id;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getRateLimit($request, $action)
+    public function getRateLimit($request, $action): array
     {
         return [1000, 600];
     }
@@ -197,7 +208,7 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
     /**
      * {@inheritdoc}
      */
-    public function loadAllowance($request, $action)
+    public function loadAllowance($request, $action): array
     {
         return [
             $this->allowance === null ? 1000 : $this->allowance,
@@ -208,12 +219,44 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
     /**
      * {@inheritdoc}
      */
-    public function saveAllowance($request, $action, $allowance, $timestamp)
+    public function saveAllowance($request, $action, $allowance, $timestamp): void
     {
         $this->updateAttributes([
             'allowance' => $allowance,
             'allowance_updated_at' => $timestamp,
             'updated_at' => $timestamp,
         ]);
+    }
+
+    public function setPrivateKey(CryptKeyInterface $privateKey): void
+    {
+        // TODO: Implement setPrivateKey() method.
+    }
+
+    public function setExpiryDateTime(DateTimeImmutable $dateTime): void
+    {
+        // TODO: Implement setExpiryDateTime() method.
+    }
+
+    public function setClient(ClientEntityInterface $client): void
+    {
+        // TODO: Implement setClient() method.
+    }
+
+    public function addScope(ScopeEntityInterface $scope): void
+    {
+        // TODO: Implement addScope() method.
+    }
+
+    /**
+     * Override it in order to set additional public or private claims.
+     *
+     * @param Builder $builder
+     * @return Builder
+     * @see https://tools.ietf.org/html/rfc7519#section-4
+     */
+    protected function finalizeJWTBuilder(Builder $builder): Builder
+    {
+        return $builder;
     }
 }

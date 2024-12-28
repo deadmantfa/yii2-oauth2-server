@@ -1,25 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace deadmantfa\yii2\oauth2\server\components\ResponseTypes;
 
-use deadmantfa\yii2\oauth2\server\models\AccessToken;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\ResponseTypes\AbstractResponseType;
 use Psr\Http\Message\ResponseInterface;
 
-/**
- * Class MacTokenResponse
- * @package deadmantfa\yii2\oauth2\server\components
- *
- * @link https://tools.ietf.org/html/draft-ietf-oauth-v2-http-mac-05
- *
- * @property AccessToken $accessToken
- */
 class MacTokenResponse extends AbstractResponseType
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function generateHttpResponse(ResponseInterface $response)
+    public function generateHttpResponse(ResponseInterface $response): ResponseInterface
     {
         $expireDateTime = $this->accessToken->getExpiryDateTime()->getTimestamp();
 
@@ -27,28 +18,24 @@ class MacTokenResponse extends AbstractResponseType
 
         $responseParams = [
             'token_type' => 'mac',
-            'expires_in' => $expireDateTime - (new \DateTime())->getTimestamp(),
+            'expires_in' => $expireDateTime - time(),
             'access_token' => (string)$jwtAccessToken,
             'kid' => $this->accessToken->identifier,
             'mac_key' => $this->accessToken->mac_key,
-            'mac_algorithm' => $this->accessToken->getMacAlgorithm()
+            'mac_algorithm' => $this->accessToken->getMacAlgorithm(),
         ];
 
         if ($this->refreshToken instanceof RefreshTokenEntityInterface) {
-            $refreshToken = $this->encrypt(
-                json_encode(
-                    [
-                        'client_id' => $this->accessToken->getClient()->getIdentifier(),
-                        'refresh_token_id' => $this->refreshToken->getIdentifier(),
-                        'access_token_id' => $this->accessToken->getIdentifier(),
-                        'scopes' => $this->accessToken->getScopes(),
-                        'user_id' => $this->accessToken->getUserIdentifier(),
-                        'expire_time' => $this->refreshToken->getExpiryDateTime()->getTimestamp(),
-                    ]
-                )
-            );
+            $refreshTokenData = [
+                'client_id' => $this->accessToken->getClient()->getIdentifier(),
+                'refresh_token_id' => $this->refreshToken->getIdentifier(),
+                'access_token_id' => $this->accessToken->getIdentifier(),
+                'scopes' => $this->accessToken->getScopes(),
+                'user_id' => $this->accessToken->getUserIdentifier(),
+                'expire_time' => $this->refreshToken->getExpiryDateTime()->getTimestamp(),
+            ];
 
-            $responseParams['refresh_token'] = $refreshToken;
+            $responseParams['refresh_token'] = $this->encrypt(json_encode($refreshTokenData));
         }
 
         $response = $response

@@ -6,9 +6,13 @@ use deadmantfa\yii2\oauth2\server\models\RefreshToken;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
+use RuntimeException;
+use Throwable;
+use Yii;
 use yii\base\Component;
 use yii\caching\Dependency;
 use yii\caching\TagDependency;
+use yii\db\Exception;
 
 /**
  * Class RefreshTokenRepository
@@ -20,11 +24,11 @@ class RefreshTokenRepository extends Component implements RefreshTokenRepository
 
 
     /**
-     * {@inheritdoc}
+     * {}
      *
      * @return RefreshTokenEntityInterface|RefreshToken
      */
-    public function getNewRefreshToken()
+    public function getNewRefreshToken(): ?RefreshTokenEntityInterface
     {
         return new RefreshToken();
     }
@@ -34,72 +38,37 @@ class RefreshTokenRepository extends Component implements RefreshTokenRepository
      *
      * @param RefreshTokenEntityInterface|RefreshToken $refreshTokenEntity
      * @return RefreshTokenEntityInterface|RefreshToken
-     * @throws OAuthServerException
+     * @throws OAuthServerException|Exception
      */
-    public function persistNewRefreshToken(RefreshTokenEntityInterface $refreshTokenEntity)
+    public function persistNewRefreshToken(RefreshTokenEntityInterface $refreshTokenEntity): void
     {
         if ($refreshTokenEntity instanceof RefreshToken) {
-            $refreshTokenEntity->setAttribute(
-                'expired_at',
-                $refreshTokenEntity->getExpiryDateTime()->getTimestamp()
-            );
-            if ($refreshTokenEntity->save()) {
-                return $refreshTokenEntity;
+            $refreshTokenEntity->expired_at = $refreshTokenEntity->getExpiryDateTime()->getTimestamp();
+            if (!$refreshTokenEntity->save()) {
+                throw OAuthServerException::serverError('Failed to save refresh token.');
             }
-        }
-
-        throw OAuthServerException::serverError('Refresh token failure');
-    }
-
-    /**
-     * {@inheritdoc}
-     * @throws \Throwable
-     */
-    public function isRefreshTokenRevoked($tokenId)
-    {
-        $token = $this->getCachedToken(
-            $tokenId,
-            $this->getCacheDuration(),
-            $this->getCacheDependency()
-        );
-
-        return $token instanceof RefreshToken === false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function revokeRefreshToken($tokenId)
-    {
-        $token = $this->getCachedToken(
-            $tokenId,
-            $this->getCacheDuration(),
-            $this->getCacheDependency()
-        );
-
-        if ($token instanceof RefreshToken) {
-
-            $token->updateAttributes([
-                'status' => RefreshToken::STATUS_REVOKED,
-                'updated_at' => time(),
-            ]);
-
-            TagDependency::invalidate(
-                \Yii::$app->cache,
-                static::class
-            );
-
+        } else {
+            throw new RuntimeException('Invalid refresh token entity.');
         }
     }
 
+    /**
+     * {}
+     * @throws Throwable
+     */
+    public function isRefreshTokenRevoked($tokenId): bool
+    {
+        $token = $this->getCachedToken($tokenId);
+        return !$token || $token->status === RefreshToken::STATUS_REVOKED;
+    }
 
     /**
      * @param $tokenId
-     * @param null|int $duration
-     * @param null|Dependency $dependency
+     * @param int|null $duration
+     * @param Dependency|null $dependency
      * @return RefreshToken|null
      */
-    protected function getCachedToken($tokenId, $duration = null, $dependency = null)
+    protected function getCachedToken($tokenId, int $duration = null, Dependency $dependency = null): ?RefreshToken
     {
         try {
             $token = RefreshToken::getDb()
@@ -114,10 +83,22 @@ class RefreshTokenRepository extends Component implements RefreshTokenRepository
                         ? $dependency
                         : new TagDependency(['tags' => static::class])
                 );
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $token = null;
         }
 
         return $token;
+    }
+
+    /**
+     * {}
+     */
+    public function revokeRefreshToken($tokenId): void
+    {
+        $token = $this->getCachedToken($tokenId);
+        if ($token) {
+            $token->updateAttributes(['status' => RefreshToken::STATUS_REVOKED]);
+            TagDependency::invalidate(Yii::$app->cache, static::class);
+        }
     }
 }

@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace deadmantfa\yii2\oauth2\server\controllers;
 
-use deadmantfa\yii2\oauth2\server\components\Exception\OAuthHttpException;
 use deadmantfa\yii2\oauth2\server\models\AccessToken;
 use deadmantfa\yii2\oauth2\server\Module;
 use League\OAuth2\Server\Exception\OAuthServerException;
+use Throwable;
 use yii\helpers\Json;
 use yii\rest\ActiveController;
 use yii\rest\OptionsAction;
@@ -14,60 +16,36 @@ use yii\web\HttpException;
 
 class TokenController extends ActiveController
 {
-    /**
-     * @var string
-     */
     public $modelClass = AccessToken::class;
 
-
-    /**
-     * {@inheritdoc}
-     */
-    public function actions()
+    public function actions(): array
     {
         return [
-            'options' => [
-                'class' => OptionsAction::class,
-            ],
+            'options' => ['class' => OptionsAction::class],
         ];
     }
 
     /**
-     * @return mixed
      * @throws HttpException
      * @throws BadRequestHttpException
-     * @throws OAuthHttpException
      */
-    public function actionCreate()
+    public function actionCreate(): array
     {
         /** @var Module $module */
         $module = $this->module;
 
         try {
-
             $response = $module->getAuthorizationServer()
                 ->respondToAccessTokenRequest(
                     $module->getServerRequest(),
                     $module->getServerResponse()
                 );
 
-            return Json::decode($response->getBody()->__toString());
-
+            return Json::decode((string)$response->getBody());
         } catch (OAuthServerException $exception) {
-
-            throw new OAuthHttpException($exception);
-
-        } catch (BadRequestHttpException $exception) {
-
-            throw $exception;
-
-        } catch (\Exception $exception) {
-
-            throw new HttpException(
-                500, 'Unable to respond to access token request.', 0,
-                YII_DEBUG ? $exception : null
-            );
-
+            throw new HttpException($exception->getHttpStatusCode(), $exception->getMessage(), 0, $exception);
+        } catch (Throwable $exception) {
+            throw new HttpException(500, 'Unable to process the request.', 0, $exception);
         }
     }
 }

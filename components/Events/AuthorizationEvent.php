@@ -1,53 +1,49 @@
 <?php
 
+declare(strict_types=1);
+
 namespace deadmantfa\yii2\oauth2\server\components\Events;
 
-use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Token;
-use League\Event\Event;
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Token\Plain;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use yii\helpers\Json;
 
-class AuthorizationEvent extends Event
+class AuthorizationEvent
 {
-    const USER_AUTHENTICATION_SUCCEED = 'user.authentication.succeed';
+    public const USER_AUTHENTICATION_SUCCEED = 'user.authentication.succeed';
 
-    /**
-     * @var ServerRequestInterface
-     */
-    public $request;
+    public ServerRequestInterface $request;
+    public ResponseInterface $response;
+    private ?Plain $_token = null;
+    private Configuration $jwtConfig;
 
-    /**
-     * @var ResponseInterface
-     */
-    public $response;
-
-    /**
-     * @var Token
-     */
-    private $_token;
-
-
-    public function __construct($name, ServerRequestInterface $request, ResponseInterface $response)
+    public function __construct(
+        ServerRequestInterface $request,
+        ResponseInterface      $response,
+        Configuration          $jwtConfig
+    )
     {
-        parent::__construct($name);
         $this->request = $request;
         $this->response = $response;
+        $this->jwtConfig = $jwtConfig;
     }
 
     /**
-     * @return Token
+     * Retrieves and parses the access token from the response.
      */
-    public function getToken()
+    public function getToken(): ?Plain
     {
-        if (
-            !$this->_token instanceof Token
-            && $this->response instanceof ResponseInterface
-        ) {
-            $response = Json::decode($this->response->getBody()->__toString());
-            if (array_key_exists('access_token', $response)) {
-                $this->_token = (new Parser())->parse($response['access_token']);
+        if ($this->_token === null) {
+            $responseBody = (string)$this->response->getBody();
+            $response = Json::decode($responseBody);
+
+            if (isset($response['access_token'])) {
+                $parsedToken = $this->jwtConfig->parser()->parse($response['access_token']);
+                if ($parsedToken instanceof Plain) {
+                    $this->_token = $parsedToken;
+                }
             }
         }
 

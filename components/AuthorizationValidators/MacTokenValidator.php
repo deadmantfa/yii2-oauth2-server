@@ -1,94 +1,62 @@
 <?php
 
+declare(strict_types=1);
+
 namespace deadmantfa\yii2\oauth2\server\components\AuthorizationValidators;
 
 use deadmantfa\yii2\oauth2\server\components\Mac;
-use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Signer\Rsa\Sha256;
-use Lcobucci\JWT\ValidationData;
+use Lcobucci\JWT\Configuration;
 use League\OAuth2\Server\AuthorizationValidators\AuthorizationValidatorInterface;
-use League\OAuth2\Server\CryptKey;
-use League\OAuth2\Server\CryptTrait;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Throwable;
 
 class MacTokenValidator implements AuthorizationValidatorInterface
 {
-    use CryptTrait;
+    private AccessTokenRepositoryInterface $accessTokenRepository;
+    private Configuration $jwtConfig;
 
-    /**
-     * @var AccessTokenRepositoryInterface
-     */
-    private $accessTokenRepository;
-
-    /**
-     * @var \League\OAuth2\Server\CryptKey
-     */
-    protected $publicKey;
-
-    /**
-     * @param AccessTokenRepositoryInterface $accessTokenRepository
-     */
-    public function __construct(AccessTokenRepositoryInterface $accessTokenRepository)
+    public function __construct(AccessTokenRepositoryInterface $accessTokenRepository, Configuration $jwtConfig)
     {
         $this->accessTokenRepository = $accessTokenRepository;
+        $this->jwtConfig = $jwtConfig;
     }
 
     /**
-     * Set the private key
+     * Validates the authorization.
      *
-     * @param \League\OAuth2\Server\CryptKey $key
+     * @throws OAuthServerException
      */
-    public function setPublicKey(CryptKey $key)
+    public function validateAuthorization(ServerRequestInterface $request): ServerRequestInterface
     {
-        $this->publicKey = $key;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function validateAuthorization(ServerRequestInterface $request)
-    {
-        if ($request->hasHeader('authorization') === false) {
-            throw OAuthServerException::accessDenied('Missing "Authorization" header');
+        $authHeader = $request->getHeaderLine('Authorization');
+        if (empty($authHeader)) {
+            throw OAuthServerException::accessDenied('Missing "Authorization" header.');
         }
 
         try {
-            // Attempt to parse and validate the JWT
-            $token = (new Mac($request))
-                ->validate()
-                ->getJwt();
+            // Process the header to extract and validate the token
+            $jwt = (new Mac($authHeader))->validate()->getJwt();
 
-            if ($token->verify(new Sha256(), $this->publicKey->getKeyPath()) === false) {
-                throw OAuthServerException::accessDenied('Access token could not be verified');
+            // Validate JWT claims using configured constraints
+            if (!$this->jwtConfig->validator()->validate($jwt, ...$this->jwtConfig->validationConstraints())) {
+                throw OAuthServerException::accessDenied('Invalid JWT.');
             }
 
-            // Ensure access token hasn't expired
-            $data = new ValidationData();
-            $data->setCurrentTime(time());
-
-            if ($token->validate($data) === false) {
-                throw OAuthServerException::accessDenied('Access token is invalid');
+            // Check if the access token is revoked
+            if ($this->accessTokenRepository->isAccessTokenRevoked($jwt->claims()->get('jti'))) {
+                throw OAuthServerException::accessDenied('Access token has been revoked.');
             }
 
-            // Check if token has been revoked
-            if ($this->accessTokenRepository->isAccessTokenRevoked($token->getClaim('jti'))) {
-                throw OAuthServerException::accessDenied('Access token has been revoked');
-            }
-
-            // Return the request with additional attributes
+            // Attach validated claims to the request
             return $request
-                ->withAttribute('oauth_access_token_id', $token->getClaim('jti'))
-                ->withAttribute('oauth_client_id', $token->getClaim('aud'))
-                ->withAttribute('oauth_user_id', $token->getClaim('sub'))
-                ->withAttribute('oauth_scopes', $token->getClaim('scopes'));
-        } catch (\InvalidArgumentException $exception) {
-            // JWT couldn't be parsed so return the request as is
-            throw OAuthServerException::accessDenied($exception->getMessage());
-        } catch (\RuntimeException $exception) {
-            //JWR couldn't be parsed so return the request as is
-            throw OAuthServerException::accessDenied('Error while decoding to JSON');
+                ->withAttribute('oauth_access_token_id', $jwt->claims()->get('jti'))
+                ->withAttribute('oauth_client_id', $jwt->claims()->get('aud'))
+                ->withAttribute('oauth_user_id', $jwt->claims()->get('sub'))
+                ->withAttribute('oauth_scopes', $jwt->claims()->get('scopes'));
+        } catch (Throwable $e) {
+            throw OAuthServerException::accessDenied($e->getMessage());
         }
     }
 }

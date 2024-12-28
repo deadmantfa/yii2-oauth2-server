@@ -1,27 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace deadmantfa\yii2\oauth2\server\components\ResponseTypes;
 
 use League\OAuth2\Server\ResponseTypes\AbstractResponseType;
 use Psr\Http\Message\ResponseInterface;
 
-/**
- * Class RevokeResponse
- * @package deadmantfa\yii2\oauth2\server\components
- * @link https://tools.ietf.org/html/rfc7009
- */
 class RevokeResponse extends AbstractResponseType
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function generateHttpResponse(ResponseInterface $response)
+    public function generateHttpResponse(ResponseInterface $response): ResponseInterface
     {
-        $response = $response
+        return $response
             ->withStatus(200)
             ->withHeader('pragma', 'no-cache')
             ->withHeader('cache-control', 'no-store');
-
-        return $response;
     }
 }

@@ -1,40 +1,29 @@
 <?php
+
+declare(strict_types=1);
+
 namespace deadmantfa\yii2\oauth2\server\components;
 
-use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Token;
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Token\Plain;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Psr\Http\Message\ServerRequestInterface;
-use yii\helpers\VarDumper;
 
-/**
- * Class Mac
- * @package deadmantfa\yii2\oauth2\server\components
- *
- * @property $kid
- * @property $ts
- * @property $access_token
- * @property $mac
- * @property $h
- * @property $seq_nr
- * @property $cb
- */
 class Mac
 {
-    /**
-     * @var ServerRequestInterface
-     */
-    private $_request;
-    /**
-     * @var array
-     */
-    private $_params = [];
-    private $_jwt;
+    private ServerRequestInterface $_request;
+    private array $_params = [];
+    private ?Plain $_jwt = null;
+    private Configuration $jwtConfig;
 
-
-    public function __construct(ServerRequestInterface $request, $params = null)
+    /**
+     * @throws OAuthServerException
+     */
+    public function __construct(ServerRequestInterface $request, Configuration $jwtConfig, ?array $params = null)
     {
-        if (!isset($params)) {
+        $this->jwtConfig = $jwtConfig;
+
+        if ($params === null) {
             $header = $request->getHeader('authorization');
             $params = empty($header) ? [] : $header[0];
         }
@@ -44,7 +33,7 @@ class Mac
         }
 
         if (!is_array($params)) {
-            throw OAuthServerException::serverError('MAC construction failed');
+            throw OAuthServerException::serverError('MAC construction failed.');
         }
 
         $this->_request = $request;
@@ -52,107 +41,96 @@ class Mac
     }
 
     /**
-     * Prepares MAC params array from the `Authorization` header value.
-     *
-     * @internal
-     * @param string $header
-     * @param array $required required params
-     * @param array $optional optional params, name => default
-     * @return array parsed MAC params
      * @throws OAuthServerException
      */
     protected function prepare(
-        $header,
-        $required = ['kid', 'ts', 'access_token', 'mac'],
-        $optional = ['h' => ['host'], 'seq-nr' => null, 'cb' => null]
-    )
+        string $header,
+        array  $required = ['kid', 'ts', 'access_token', 'mac'],
+        array  $optional = ['h' => ['host'], 'seq-nr' => null, 'cb' => null]
+    ): array
     {
         $mac = [];
         $params = explode(',', preg_replace('/^(?:\s+)?MAC\s/', '', $header));
-        array_walk($params, function (&$param) use (&$mac) {
-            $param = array_map('trim', explode('=', $param, 2));
-            if (count($param) != 2) {
-                throw OAuthServerException::accessDenied('Error while parsing MAC params');
+
+        foreach ($params as $param) {
+            $parts = array_map('trim', explode('=', $param, 2));
+            if (count($parts) !== 2) {
+                throw OAuthServerException::accessDenied('Error parsing MAC params.');
             }
-            if ($param[0] == 'h') {
-                $mac[$param[0]] = explode(':', trim($param[1], '"'));
-            } else {
-                $mac[$param[0]] = trim($param[1], '"');
-            }
-        });
+            $key = $parts[0];
+            $value = trim($parts[1], '"');
+            $mac[$key] = ($key === 'h') ? explode(':', $value) : $value;
+        }
 
         foreach ($required as $param) {
             if (!array_key_exists($param, $mac)) {
-                throw OAuthServerException::accessDenied("Required MAC param `$param` missing");
+                throw OAuthServerException::accessDenied("Required MAC param `$param` missing.");
             }
         }
 
         return array_merge($optional, $mac);
     }
 
-    public function __get($name)
-    {
-        if (isset($this->_params[$name])) {
-            return $this->_params[$name];
-        } else {
-            $name = str_replace('_', '-', $name);
-            if (isset($this->_params[$name])) {
-                return $this->_params[$name];
-            }
-        }
-
-        return null;
-    }
-
-    public function validate()
+    /**
+     * @throws OAuthServerException
+     */
+    public function validate(): self
     {
         $values = array_merge(
             [$this->getStartLine()],
             $this->getHeaders(),
-            [$this->ts, $this->seq_nr]
+            [$this->getParam('ts'), $this->getParam('seq_nr')]
         );
 
-        $mac = hash_hmac(
+        $expectedMac = hash_hmac(
             $this->getAlgorithm(),
-            implode('\\n', array_filter($values)) . '\\n',
-            $this->getJwt()->getClaim('mac_key')
+            implode("\n", array_filter($values)) . "\n",
+            $this->getJwt()->claims()->get('mac_key')
         );
 
-        if (base64_encode($mac) === $this->mac) {
+        if (base64_encode($expectedMac) === $this->getParam('mac')) {
             return $this;
         }
 
-        throw OAuthServerException::accessDenied('MAC validation failed');
+        throw OAuthServerException::accessDenied('MAC validation failed.');
     }
 
-    protected function getStartLine()
+    protected function getStartLine(): string
     {
-        return implode(' ', [
-            $this->_request->getMethod(),
-            $this->_request->getUri(),
-            'HTTP/' . $this->_request->getProtocolVersion()
-        ]);
+        return sprintf('%s %s HTTP/%s', $this->_request->getMethod(), $this->_request->getUri(), $this->_request->getProtocolVersion());
     }
 
-    protected function getHeaders()
+    protected function getHeaders(): array
     {
-        return array_map(function ($name) {
-            $h = $this->_request->getHeader($name);
-            return empty($h) ? null : $h[0];
-        }, $this->h);
+        return array_map(
+            fn($name) => $this->_request->getHeaderLine($name),
+            $this->getParam('h') ?? []
+        );
     }
 
-    protected function getAlgorithm()
+    public function getParam(string $name)
+    {
+        return $this->_params[$name] ?? null;
+    }
+
+    protected function getAlgorithm(): string
     {
         return 'sha256';
     }
 
-    public function getJwt()
+    /**
+     * @throws OAuthServerException
+     */
+    public function getJwt(): Plain
     {
-        if (!isset($this->_jwt)) {
-            $this->_jwt = (new Parser())->parse($this->access_token);
+        if ($this->_jwt === null) {
+            $this->_jwt = $this->jwtConfig->parser()->parse($this->getParam('access_token'));
         }
 
-        return $this->_jwt instanceof Token ? $this->_jwt : new Token();
+        if (!$this->_jwt instanceof Plain) {
+            throw OAuthServerException::accessDenied('Invalid JWT.');
+        }
+
+        return $this->_jwt;
     }
 }
