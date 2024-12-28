@@ -7,8 +7,11 @@ namespace deadmantfa\yii2\oauth2\server\models;
 
 use deadmantfa\yii2\oauth2\server\components\ResponseTypes\BearerTokenResponse;
 use deadmantfa\yii2\oauth2\server\components\ResponseTypes\MacTokenResponse;
+use Exception;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
+use Throwable;
+use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
@@ -55,18 +58,9 @@ class Client extends ActiveRecord implements ClientEntityInterface
     /**
      * @inheritdoc
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%auth__client}}';
-    }
-
-    /**
-     * @inheritdoc
-     * @return ClientQuery
-     */
-    public static function find()
-    {
-        return new ClientQuery(get_called_class());
     }
 
     /**
@@ -81,7 +75,7 @@ class Client extends ActiveRecord implements ClientEntityInterface
         $grantType,
         $clientSecret = null,
         $mustValidateSecret = true
-    )
+    ): null|static
     {
         try {
 
@@ -107,14 +101,41 @@ class Client extends ActiveRecord implements ClientEntityInterface
                 return $clientEntity;
             }
 
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
 
         }
 
         return null;
     }
 
-    public static function grants()
+    /**
+     * @inheritdoc
+     * @return ClientQuery
+     */
+    public static function find(): ClientQuery
+    {
+        return new ClientQuery(get_called_class());
+    }
+
+    public function getIsConfidential(): bool
+    {
+        return $this->secret !== null;
+    }
+
+    public static function secretVerify($secret, $hash): bool
+    {
+        return password_verify($secret, $hash);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function getGrantTypeId($grantType, $default = null)
+    {
+        return ArrayHelper::getValue(array_flip(static::grants()), $grantType, $default);
+    }
+
+    public static function grants(): array
     {
         return [
             static::GRANT_TYPE_AUTHORIZATION_CODE => 'authorization_code',
@@ -126,37 +147,35 @@ class Client extends ActiveRecord implements ClientEntityInterface
         ];
     }
 
-    public static function getGrantTypeId($grantType, $default = null)
-    {
-        return ArrayHelper::getValue(array_flip(static::grants()), $grantType, $default);
-    }
-
-    public static function secretHash($secret)
+    public static function secretHash($secret): string
     {
         return password_hash($secret, PASSWORD_DEFAULT);
     }
 
-    public static function secretVerify($secret, $hash)
+    public static function findByIdentifier(string $clientIdentifier): array|ActiveRecord|null
     {
-        return password_verify($secret, $hash);
+        return static::find()
+            ->active()
+            ->identifier($clientIdentifier)
+            ->one() ?: null;
     }
 
-    public function getIdentifier()
+    public function getIdentifier(): string
     {
         return $this->identifier;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function getRedirectUri()
+    public function getRedirectUri(): array|string
     {
         return $this->redirect_uri;
     }
 
-    public function getResponseType()
+    public function getResponseType(): MacTokenResponse|ResponseTypeInterface|BearerTokenResponse
     {
         if (!$this->_responseType instanceof ResponseTypeInterface) {
 
@@ -177,15 +196,16 @@ class Client extends ActiveRecord implements ClientEntityInterface
     /**
      * @param callable|null $callable
      * @return ClientQuery|ActiveQuery
+     * @throws InvalidConfigException
      */
-    public function getRelatedScopes(callable $callable = null)
+    public function getRelatedScopes(callable $callable = null): ActiveQuery|ClientQuery
     {
         return $this->hasMany(Scope::class, ['id' => 'scope_id'])
             ->viaTable('{{auth__client_scope}}', ['client_id' => 'id'], $callable);
     }
 
-    public function getIsConfidential()
+    public function isConfidential(): bool
     {
-        return $this->secret !== null;
+        return true;
     }
 }

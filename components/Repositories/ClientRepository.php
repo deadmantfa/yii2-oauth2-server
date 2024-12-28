@@ -1,34 +1,29 @@
 <?php
-/**
- *
- */
 
 namespace deadmantfa\yii2\oauth2\server\components\Repositories;
 
 use deadmantfa\yii2\oauth2\server\models\Client;
+use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use yii\base\Component;
 
-/**
- * Class ClientRepository
- * @package deadmantfa\yii2\oauth2\server\components\Repositories
- */
 class ClientRepository extends Component implements ClientRepositoryInterface
 {
     /**
-     * {@inheritdoc}
+     * Fetch client by identifier only (no secret or grant checks).
      */
-    public function getClientEntity(
-        $clientIdentifier,
-        $grantType,
-        $clientSecret = null,
-        $mustValidateSecret = true
-    ) {
-        return Client::findEntity(
-            $clientIdentifier,
-            $grantType,
-            $clientSecret,
-            $mustValidateSecret
-        );
+    public function getClientEntity(string $clientIdentifier): ?ClientEntityInterface
+    {
+        return Client::findByIdentifier($clientIdentifier);
+    }
+
+    /**
+     * Validate the client (client_id, secret, grant_type).
+     */
+    public function validateClient($clientIdentifier, $clientSecret, $grantType): bool
+    {
+        // Reuse your existing findEntity logic to check secret + grant
+        $client = Client::findEntity($clientIdentifier, $grantType, $clientSecret, true);
+        return $client !== null;
     }
 }
