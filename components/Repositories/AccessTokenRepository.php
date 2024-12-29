@@ -9,6 +9,7 @@ use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use RuntimeException;
+use Yii;
 use yii\db\Exception;
 
 class AccessTokenRepository implements AccessTokenRepositoryInterface
@@ -18,6 +19,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
      */
     public function persistNewAccessToken(AccessTokenEntityInterface $accessTokenEntity): void
     {
+        Yii::info('Persisting new access token with expiry: ' . $accessTokenEntity->getExpiryDateTime()->format('Y-m-d H:i:s'), 'auth');
         $token = new AccessToken([
             'identifier' => $accessTokenEntity->getIdentifier(),
             'expiry_date_time' => $accessTokenEntity->getExpiryDateTime()->format('Y-m-d H:i:s'),

@@ -19,6 +19,7 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Entities\Traits\AccessTokenTrait;
 use League\OAuth2\Server\Entities\Traits\TokenEntityTrait;
+use LogicException;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -169,6 +170,10 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
      */
     public function getExpiryDateTime(): DateTimeImmutable
     {
+        if (empty($this->expired_at)) {
+            throw new LogicException('The "expired_at" property must be set before calling getExpiryDateTime.');
+        }
+
         return new DateTimeImmutable('@' . $this->expired_at);
     }
 
