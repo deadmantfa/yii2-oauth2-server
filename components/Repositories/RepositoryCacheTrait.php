@@ -16,7 +16,7 @@ trait RepositoryCacheTrait
         return $this->_cacheDuration;
     }
 
-    public function setCacheDuration(int $cacheDuration): self
+    public function setCacheDuration(int $cacheDuration): static
     {
         $this->_cacheDuration = $cacheDuration;
         return $this;
@@ -27,20 +27,20 @@ trait RepositoryCacheTrait
         return $this->_cacheDependency;
     }
 
-    public function setCacheDependency(?Dependency $cacheDependency): self
+    public function setCacheDependency(Dependency $cacheDependency): static
     {
         $this->_cacheDependency = $cacheDependency;
         return $this;
     }
 
-    public function setCache(?array $config): self
+    public function setCache(?array $cache): static
     {
-        if (isset($config['cacheDuration'])) {
-            $this->setCacheDuration((int)$config['cacheDuration']);
+        if (isset($cache['cacheDuration'])) {
+            $this->setCacheDuration($cache['cacheDuration']);
         }
 
-        if (isset($config['cacheDependency'])) {
-            $this->setCacheDependency($config['cacheDependency']);
+        if (isset($cache['cacheDependency'])) {
+            $this->setCacheDependency($cache['cacheDependency']);
         }
 
         return $this;
