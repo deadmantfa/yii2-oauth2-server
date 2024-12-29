@@ -23,8 +23,8 @@ class ClientQuery extends ActiveQuery
         return $this->andWhere([Client::tableName() . '.grant_type' => $grantTypeId]);
     }
 
-    public function identifier($clientIdentifier): self
+    public function identifier($identifier): self
     {
-        return $this->andWhere([Client::tableName() . '.identifier' => $clientIdentifier]);
+        return $this->andWhere([Client::tableName() . '.identifier' => $identifier]);
     }
 }
