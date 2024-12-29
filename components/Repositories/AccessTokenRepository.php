@@ -17,19 +17,20 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     /**
      * @throws Exception
      */
-    public function persistNewAccessToken(AccessTokenEntityInterface $accessTokenEntity): void
+    public function persistNewAccessToken(AccessTokenEntityInterface $accessToken): void
     {
-        Yii::info('Persisting new access token with expiry: ' . $accessTokenEntity->getExpiryDateTime()->format('Y-m-d H:i:s'), 'auth');
-        $token = new AccessToken([
-            'identifier' => $accessTokenEntity->getIdentifier(),
-            'expiry_date_time' => $accessTokenEntity->getExpiryDateTime()->format('Y-m-d H:i:s'),
-            'client_id' => $accessTokenEntity->getClient()->getIdentifier(),
-            'user_id' => $accessTokenEntity->getUserIdentifier(),
-            'scopes' => json_encode($accessTokenEntity->getScopes()),
-        ]);
+        Yii::info('Persisting access token with ID: ' . $accessToken->getIdentifier(), 'auth');
+        Yii::info('Token expiry: ' . $accessToken->getExpiryDateTime()->format('Y-m-d H:i:s'), 'auth');
 
-        if (!$token->save()) {
-            throw new RuntimeException('Failed to save access token.');
+        $model = new AccessToken();
+        $model->client_id = $accessToken->getClient()->getIdentifier();
+        $model->user_id = $accessToken->getUserIdentifier();
+        $model->identifier = $accessToken->getIdentifier();
+        $model->expired_at = $accessToken->getExpiryDateTime()->getTimestamp();
+
+        if (!$model->save()) {
+            Yii::error('Failed to save access token: ' . json_encode($model->getErrors()), 'auth');
+            throw new RuntimeException('Failed to save access token');
         }
     }
 

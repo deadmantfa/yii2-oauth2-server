@@ -20,6 +20,7 @@ use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Entities\Traits\AccessTokenTrait;
 use League\OAuth2\Server\Entities\Traits\TokenEntityTrait;
 use LogicException;
+use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -113,6 +114,8 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
         return [
             [['client_id'], 'required'], // identifier
             [['user_id'], 'default'],
+            ['expired_at', 'default', 'value' => time() + 3600], // Default expiry
+            ['expired_at', 'integer'],
             ['type', 'default', 'value' => static::TYPE_BEARER],
             ['type', 'in', 'range' => [static::TYPE_BEARER, static::TYPE_MAC]],
             ['mac_algorithm', 'default', 'value' => static::MAC_ALGORITHM_HMAC_SHA256],
@@ -168,9 +171,11 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
     /**
      * @throws DateMalformedStringException
      */
+
     public function getExpiryDateTime(): DateTimeImmutable
     {
         if (empty($this->expired_at)) {
+            Yii::error('The "expired_at" property must be set.', 'auth');
             throw new LogicException('The "expired_at" property must be set before calling getExpiryDateTime.');
         }
 
