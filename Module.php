@@ -12,6 +12,7 @@ use deadmantfa\yii2\oauth2\server\components\Repositories\MacTokenRepository;
 use deadmantfa\yii2\oauth2\server\components\Repositories\ScopeRepository;
 use deadmantfa\yii2\oauth2\server\components\ResponseTypes\MacTokenResponse;
 use deadmantfa\yii2\oauth2\server\components\Server\AuthorizationServer;
+use InvalidArgumentException;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
@@ -35,7 +36,9 @@ class Module extends \yii\base\Module implements BootstrapInterface
     public $enableGrantTypes;
     public $components = [];
     public $cache = [];
-
+    public $modelMap = [
+        'Client' => 'deadmantfa\yii2\oauth2\server\models\Client',
+    ];
     private ?AuthorizationServer $_authorizationServer = null;
     private ?ServerRequest $_serverRequest = null;
     private ?ServerResponse $_serverResponse = null;
@@ -198,5 +201,13 @@ class Module extends \yii\base\Module implements BootstrapInterface
         }
 
         return $this->_serverResponse;
+    }
+
+    public function getModel($name)
+    {
+        if (!isset($this->modelMap[$name])) {
+            throw new InvalidArgumentException("Model '{$name}' not found in the model map.");
+        }
+        return $this->modelMap[$name];
     }
 }
