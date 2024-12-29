@@ -33,12 +33,13 @@ class Module extends \yii\base\Module implements BootstrapInterface
     public $publicKey;
     public $encryptionKey;
     public $enableGrantTypes;
+    public $components = [];
     public $cache = [];
 
     private ?AuthorizationServer $_authorizationServer = null;
-    private ?ResponseTypeInterface $_responseType = null;
     private ?ServerRequest $_serverRequest = null;
     private ?ServerResponse $_serverResponse = null;
+    private ?ResponseTypeInterface $_responseType = null;
 
     public function bootstrap($app): void
     {
@@ -115,7 +116,15 @@ class Module extends \yii\base\Module implements BootstrapInterface
         if (!isset($this->components[$name])) {
             throw new InvalidConfigException("Component '$name' is not configured.");
         }
-        return Yii::createObject($this->components[$name]);
+
+        $componentConfig = $this->components[$name];
+        if (is_array($componentConfig)) {
+            if (isset($this->cache[$name])) {
+                $componentConfig = ArrayHelper::merge($componentConfig, ['cache' => $this->cache[$name]]);
+            }
+        }
+
+        return Yii::createObject($componentConfig);
     }
 
     /**
@@ -166,6 +175,9 @@ class Module extends \yii\base\Module implements BootstrapInterface
         return $this->_serverRequest;
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     public function getServerResponse(): ServerResponse
     {
         if (!$this->_serverResponse instanceof ServerResponse) {
