@@ -11,6 +11,7 @@ use Exception;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use Throwable;
+use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -79,6 +80,7 @@ class Client extends ActiveRecord implements ClientEntityInterface
     ): ?static
     {
         try {
+            Yii::info('DB Query: ' . static::find()->active()->identifier($clientIdentifier)->grant($grantType)->createCommand()->getRawSql(), 'auth');
             $clientEntity = static::getDb()->cache(
                 fn() => static::find()
                     ->active()
