@@ -11,6 +11,13 @@ use yii\web\Request;
 class ServerRequest extends GuzzleServerRequest
 {
     /**
+     * Parsed body of the request.
+     *
+     * @var array|null
+     */
+    private ?array $parsedBody = null;
+
+    /**
      * Converts Yii2 Request to PSR-7 ServerRequest.
      *
      * @param Request $request
@@ -48,5 +55,15 @@ class ServerRequest extends GuzzleServerRequest
     private function determineProtocolVersion(Request $request): string
     {
         return $request->isSecureConnection ? '2.0' : '1.1'; // Default to HTTP/1.1
+    }
+
+    /**
+     * Retrieves the parsed body of the request.
+     *
+     * @return array|null
+     */
+    public function getParsedBody(): ?array
+    {
+        return $this->parsedBody;
     }
 }

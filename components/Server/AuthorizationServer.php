@@ -92,4 +92,22 @@ class AuthorizationServer extends \League\OAuth2\Server\AuthorizationServer
 
         throw OAuthServerException::unsupportedGrantType();
     }
+
+    /**
+     * Get a parameter from the request body.
+     *
+     * @param string $parameter
+     * @param ServerRequestInterface $request
+     * @param mixed $default
+     * @return mixed
+     */
+    protected function getRequestParameter(string $parameter, ServerRequestInterface $request, $default = null): mixed
+    {
+        $parsedBody = $request->getParsedBody();
+        if (is_array($parsedBody) && array_key_exists($parameter, $parsedBody)) {
+            return $parsedBody[$parameter];
+        }
+
+        return $default;
+    }
 }
