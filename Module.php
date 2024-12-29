@@ -130,6 +130,19 @@ class Module extends \yii\base\Module implements BootstrapInterface
     /**
      * @throws InvalidConfigException
      */
+    public function __get($name)
+    {
+        // Resolve repositories dynamically from components.
+        if (isset($this->components[$name])) {
+            return $this->getComponent($name);
+        }
+
+        return parent::__get($name);
+    }
+
+    /**
+     * @throws InvalidConfigException
+     */
     public function getClientRepository(): ClientRepositoryInterface
     {
         return Yii::createObject(ClientRepository::class);
