@@ -114,6 +114,9 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
         return [
             [['client_id'], 'required'], // identifier
             [['user_id'], 'default'],
+            ['identifier', 'default', 'value' => function () {
+                return Yii::$app->security->generateRandomString(40);
+            }],
             ['expired_at', 'default', 'value' => time() + 3600], // Default expiry
             ['expired_at', 'integer'],
             ['type', 'default', 'value' => static::TYPE_BEARER],

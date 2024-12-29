@@ -19,14 +19,12 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
      */
     public function persistNewAccessToken(AccessTokenEntityInterface $accessToken): void
     {
-        Yii::info('Persisting access token with ID: ' . $accessToken->getIdentifier(), 'auth');
-        Yii::info('Token expiry: ' . $accessToken->getExpiryDateTime()->format('Y-m-d H:i:s'), 'auth');
-
         $model = new AccessToken();
         $model->client_id = $accessToken->getClient()->getIdentifier();
         $model->user_id = $accessToken->getUserIdentifier();
-        $model->identifier = $accessToken->getIdentifier();
+        $model->identifier = $accessToken->getIdentifier(); // Save identifier
         $model->expired_at = $accessToken->getExpiryDateTime()->getTimestamp();
+        $model->status = AccessToken::STATUS_ACTIVE;
 
         if (!$model->save()) {
             Yii::error('Failed to save access token: ' . json_encode($model->getErrors()), 'auth');
