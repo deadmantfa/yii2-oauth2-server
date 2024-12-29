@@ -178,7 +178,7 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
     public function getExpiryDateTime(): DateTimeImmutable
     {
         if (empty($this->expired_at)) {
-            Yii::error('The "expired_at" property must be set.', 'auth');
+            Yii::error('The "expired_at" property is not set in AccessToken. Identifier: ' . $this->identifier, 'auth');
             throw new LogicException('The "expired_at" property must be set before calling getExpiryDateTime.');
         }
 

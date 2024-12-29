@@ -22,8 +22,8 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         $model = new AccessToken();
         $model->client_id = $accessToken->getClient()->getIdentifier();
         $model->user_id = $accessToken->getUserIdentifier();
-        $model->identifier = $accessToken->getIdentifier(); // Save identifier
-        $model->expired_at = $accessToken->getExpiryDateTime()->getTimestamp();
+        $model->identifier = $accessToken->getIdentifier();
+        $model->expired_at = $accessToken->getExpiryDateTime()->getTimestamp(); // Ensure expired_at is set
         $model->status = AccessToken::STATUS_ACTIVE;
 
         if (!$model->save()) {
