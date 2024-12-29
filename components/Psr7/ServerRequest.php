@@ -28,6 +28,15 @@ class ServerRequest extends GuzzleServerRequest
             $protocolVersion,
             $_SERVER
         );
+
+        // Parse JSON body if the content type is application/json
+        if ($request->getContentType() === 'application/json') {
+            $parsedBody = json_decode($request->getRawBody(), true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new InvalidConfigException('Invalid JSON in request body: ' . json_last_error_msg());
+            }
+            $this->parsedBody = $parsedBody;
+        }
     }
 
     /**
