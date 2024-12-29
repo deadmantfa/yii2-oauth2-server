@@ -11,9 +11,9 @@ trait EntityTrait
     /**
      * Gets the entity's identifier.
      *
-     * @return string|int|null
+     * @return string
      */
-    public function getIdentifier(): string|int|null
+    public function getIdentifier(): string
     {
         /** @var ActiveRecordInterface $this */
         return $this->getAttribute('identifier');
