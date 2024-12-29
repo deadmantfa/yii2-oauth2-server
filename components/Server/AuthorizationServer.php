@@ -81,7 +81,7 @@ class AuthorizationServer extends \League\OAuth2\Server\AuthorizationServer
         ResponseInterface      $response
     ): ResponseInterface
     {
-        $revokeGrant = $this->enabledGrantTypes['revoke'] ?? null;
+        $revokeGrant = $this->getEnabledGrantTypes()['revoke'] ?? null;
 
         if ($revokeGrant instanceof RevokeGrant) {
             $this->responseType = new RevokeResponse();
@@ -91,6 +91,16 @@ class AuthorizationServer extends \League\OAuth2\Server\AuthorizationServer
         }
 
         throw OAuthServerException::unsupportedGrantType();
+    }
+
+    /**
+     * Get the enabled grant types.
+     *
+     * @return array
+     */
+    public function getEnabledGrantTypes(): array
+    {
+        return $this->enabledGrantTypes;
     }
 
     /**
