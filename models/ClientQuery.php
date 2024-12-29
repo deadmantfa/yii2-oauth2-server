@@ -22,4 +22,9 @@ class ClientQuery extends ActiveQuery
         $grantTypeId = is_numeric($grantType) ? $grantType : Client::getGrantTypeId($grantType, -999);
         return $this->andWhere([Client::tableName() . '.grant_type' => $grantTypeId]);
     }
+
+    public function identifier($clientIdentifier): self
+    {
+        return $this->andWhere([Client::tableName() . '.identifier' => $clientIdentifier]);
+    }
 }
