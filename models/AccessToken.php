@@ -55,8 +55,6 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
     use CryptTrait, EntityTrait;
     use AccessTokenTrait, TokenEntityTrait;
 
-    // todo: get rid of this
-
     const TYPE_BEARER = 1;
     const TYPE_MAC = 2;
 
@@ -65,6 +63,10 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
 
     const STATUS_ACTIVE = 1;
     const STATUS_REVOKED = -10;
+    /**
+     * @var mixed|null
+     */
+    public mixed $is_revoked;
 
 
     /**
@@ -86,7 +88,8 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
 
     public function getRelatedClient(): ActiveQuery
     {
-        return $this->hasOne(Client::class, ['id' => 'client_id'])/* todo: ->inverseOf('accessTokens') */ ;
+        $clientClass = Yii::$app->getModule('oauth2')->modelMap['Client'] ?? Client::class;
+        return $this->hasOne($clientClass, ['id' => 'client_id']);
     }
 
     /**
@@ -168,7 +171,15 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
      */
     public function getClient(): ClientEntityInterface
     {
-        return $this->relatedClient;
+
+        $client = $this->relatedClient;
+
+        if (!$client instanceof ClientEntityInterface) {
+            Yii::error('AccessToken::getClient() failed. No client found for ID: ' . $this->client_id, 'auth');
+            throw new LogicException('AccessToken::getClient(): Unable to resolve client.');
+        }
+
+        return $client;
     }
 
     /**

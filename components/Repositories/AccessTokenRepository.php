@@ -17,13 +17,13 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     /**
      * @throws Exception
      */
-    public function persistNewAccessToken(AccessTokenEntityInterface $accessToken): void
+    public function persistNewAccessToken(AccessTokenEntityInterface $accessTokenEntity): void
     {
         $model = new AccessToken();
-        $model->client_id = $accessToken->getClient()->getIdentifier();
-        $model->user_id = $accessToken->getUserIdentifier();
-        $model->identifier = $accessToken->getIdentifier();
-        $model->expired_at = $accessToken->getExpiryDateTime()->getTimestamp(); // Ensure expired_at is set
+        $model->client_id = $accessTokenEntity->getClient()->getIdentifier();
+        $model->user_id = $accessTokenEntity->getUserIdentifier();
+        $model->identifier = $accessTokenEntity->getIdentifier();
+        $model->expired_at = $accessTokenEntity->getExpiryDateTime()->getTimestamp(); // Ensure expired_at is set
         $model->status = AccessToken::STATUS_ACTIVE;
 
         if (!$model->save()) {
@@ -41,7 +41,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     public function isAccessTokenRevoked(string $tokenId): bool
     {
         $token = AccessToken::findOne(['identifier' => $tokenId]);
-        return !$token || (bool)$token->is_revoked;
+        return !$token || $token->is_revoked;
     }
 
     public function getNewToken(ClientEntityInterface $clientEntity, array $scopes, ?string $userIdentifier = null): AccessTokenEntityInterface
