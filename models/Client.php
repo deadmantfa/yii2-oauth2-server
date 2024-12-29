@@ -5,13 +5,12 @@
 
 namespace deadmantfa\yii2\oauth2\server\models;
 
-use deadmantfa\yii2\oauth2\server\components\ResponseTypes\BearerTokenResponse;
 use deadmantfa\yii2\oauth2\server\components\ResponseTypes\MacTokenResponse;
 use Exception;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
+use League\OAuth2\Server\ResponseTypes\BearerTokenResponse;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use Throwable;
-use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -49,10 +48,6 @@ class Client extends ActiveRecord implements ClientEntityInterface
     const GRANT_TYPE_CLIENT_CREDENTIALS = 4;
     const GRANT_TYPE_REFRESH_TOKEN = 5;
     const GRANT_TYPE_REVOKE = 6;
-
-    /**
-     * @var ResponseTypeInterface
-     */
     private ?ResponseTypeInterface $_responseType = null;
 
 
@@ -67,11 +62,10 @@ class Client extends ActiveRecord implements ClientEntityInterface
     /**
      * @param string $clientIdentifier
      * @param int|string $grantType
-     * @param null $clientSecret
+     * @param string|null $clientSecret
      * @param bool $mustValidateSecret
      * @return static|null
      */
-
     public static function findEntity(
         string     $clientIdentifier,
         string|int $grantType,
@@ -80,7 +74,6 @@ class Client extends ActiveRecord implements ClientEntityInterface
     ): ?static
     {
         try {
-            Yii::info('DB Query: ' . static::find()->active()->identifier($clientIdentifier)->grant($grantType)->createCommand()->getRawSql(), 'auth');
             $clientEntity = static::getDb()->cache(
                 fn() => static::find()
                     ->active()

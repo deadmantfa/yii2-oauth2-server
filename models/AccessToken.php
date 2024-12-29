@@ -164,22 +164,16 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
      */
     public function getClient(): ClientEntityInterface
     {
+        $client = $this->relatedClient;
 
-        $client = $this->getRelatedClient();
+        Yii::info('AccessToken::getClient(): Resolved client: ' . print_r($client, true), 'auth');
 
         if (!$client instanceof ClientEntityInterface) {
-            Yii::error('AccessToken::getClient() failed. No client found for ID: ' . $this->client_id, 'auth');
-            Yii::error($client, 'auth');
-            throw new LogicException('AccessToken::getClient(): Unable to resolve client.');
+            Yii::error('AccessToken::getClient() failed. Resolved object: ' . print_r($client, true), 'auth');
+            throw new LogicException('AccessToken::getClient(): Unable to resolve a valid client entity.');
         }
 
         return $client;
-    }
-
-    public function getRelatedClient(): ActiveQuery
-    {
-        $clientClass = Yii::$app->getModule('oauth2')->modelMap['Client'] ?? Client::class;
-        return $this->hasOne($clientClass, ['id' => 'client_id']);
     }
 
     /**
@@ -203,6 +197,13 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
         }
 
         return array_values($this->scopes);
+    }
+
+    public function getRelatedClient(): ActiveQuery
+    {
+        $clientClass = Yii::$app->getModule('oauth2')->modelMap['Client'] ?? Client::class;
+        Yii::info('AccessToken::getRelatedClient() using client class: ' . $clientClass, 'auth');
+        return $this->hasOne($clientClass, ['id' => 'client_id']);
     }
 
     /**
