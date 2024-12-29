@@ -2,7 +2,7 @@
 
 namespace deadmantfa\yii2\oauth2\server\components\Repositories;
 
-use common\models\User;
+use api\modules\v1\models\User;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
