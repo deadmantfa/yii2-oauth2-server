@@ -2,9 +2,12 @@
 
 namespace deadmantfa\yii2\oauth2\server\models;
 
+use DateTimeImmutable;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\Entities\Traits\RefreshTokenTrait;
+use LogicException;
+use Yii;
 use yii\db\ActiveRecord;
 
 /**
@@ -72,7 +75,14 @@ class RefreshToken extends ActiveRecord implements RefreshTokenEntityInterface
      */
     public function getAccessToken(): AccessTokenEntityInterface
     {
-        return $this->hasOne(AccessToken::class, ['id' => 'access_token_id'])->one();
+        $accessToken = $this->hasOne(AccessToken::class, ['id' => 'access_token_id'])->one();
+
+        if (!$accessToken) {
+            Yii::error('RefreshToken::getAccessToken() failed. No valid access token found for access_token_id: ' . $this->access_token_id, 'auth');
+            throw new LogicException('Invalid access token for refresh token.');
+        }
+
+        return $accessToken;
     }
 
     /**
@@ -89,5 +99,19 @@ class RefreshToken extends ActiveRecord implements RefreshTokenEntityInterface
             $this->setAttributes(['access_token_id' => $accessToken->getPrimaryKey()]);
             $this->populateRelation('accessToken', $accessToken);
         }
+    }
+
+    public function setExpiryDateTime(DateTimeImmutable $dateTime): void
+    {
+        $this->expired_at = $dateTime->getTimestamp();
+    }
+
+    public function getExpiryDateTime(): DateTimeImmutable
+    {
+        if (empty($this->expired_at)) {
+            throw new LogicException('The "expired_at" property must be set before calling getExpiryDateTime.');
+        }
+
+        return new DateTimeImmutable('@' . $this->expired_at);
     }
 }

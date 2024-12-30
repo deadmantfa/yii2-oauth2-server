@@ -6,7 +6,6 @@ use deadmantfa\yii2\oauth2\server\models\RefreshToken;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
-use RuntimeException;
 use Throwable;
 use Yii;
 use yii\base\Component;
@@ -42,14 +41,18 @@ class RefreshTokenRepository extends Component implements RefreshTokenRepository
      */
     public function persistNewRefreshToken(RefreshTokenEntityInterface $refreshTokenEntity): void
     {
-        if ($refreshTokenEntity instanceof RefreshToken) {
-            $refreshTokenEntity->expired_at = $refreshTokenEntity->getExpiryDateTime()->getTimestamp();
-            if (!$refreshTokenEntity->save()) {
-                throw OAuthServerException::serverError('Failed to save refresh token.');
-            }
-        } else {
-            throw new RuntimeException('Invalid refresh token entity.');
+        Yii::info('Attempting to persist refresh token: ' . json_encode([
+                'identifier' => $refreshTokenEntity->getIdentifier(),
+                'access_token_id' => $refreshTokenEntity->getAccessToken()->getIdentifier(),
+                'expiry' => $refreshTokenEntity->getExpiryDateTime()->format('Y-m-d H:i:s'),
+            ]), 'auth');
+        $refreshTokenEntity->expired_at = $refreshTokenEntity->getExpiryDateTime()->getTimestamp();
+        if (!$refreshTokenEntity->save()) {
+            Yii::error('Failed to save refresh token: ' . json_encode($refreshTokenEntity->getErrors()), 'auth');
+            throw OAuthServerException::serverError('Failed to save refresh token.');
         }
+
+        Yii::info('Successfully saved refresh token: ' . $refreshTokenEntity->getIdentifier(), 'auth');
     }
 
     /**
