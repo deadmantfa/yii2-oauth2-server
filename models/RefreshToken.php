@@ -79,7 +79,12 @@ class RefreshToken extends ActiveRecord implements RefreshTokenEntityInterface
 
         if (!$accessToken) {
             Yii::error('RefreshToken::getAccessToken() failed. No valid access token found for access_token_id: ' . $this->access_token_id, 'auth');
-            throw new LogicException('Invalid access token for refresh token.');
+            throw new LogicException('Invalid access token for refresh token with identifier: ' . $this->identifier);
+        }
+
+        if ($accessToken->status !== AccessToken::STATUS_ACTIVE) {
+            Yii::error('RefreshToken::getAccessToken() found a revoked access token for access_token_id: ' . $this->access_token_id, 'auth');
+            throw new LogicException('Access token is revoked for refresh token with identifier: ' . $this->identifier);
         }
 
         return $accessToken;
@@ -92,13 +97,18 @@ class RefreshToken extends ActiveRecord implements RefreshTokenEntityInterface
      */
     public function setAccessToken(AccessTokenEntityInterface $accessToken): void
     {
-        if (
-            !$this->isRelationPopulated('accessToken') &&
-            $accessToken instanceof AccessToken
-        ) {
-            $this->setAttributes(['access_token_id' => $accessToken->getPrimaryKey()]);
-            $this->populateRelation('accessToken', $accessToken);
+        if (!$accessToken instanceof AccessToken) {
+            Yii::error('Invalid AccessToken entity passed to setAccessToken.', 'auth');
+            throw new LogicException('Invalid AccessToken entity.');
         }
+
+        if ($accessToken->status !== AccessToken::STATUS_ACTIVE) {
+            Yii::error('Attempting to associate a revoked AccessToken with RefreshToken. AccessToken ID: ' . $accessToken->id, 'auth');
+            throw new LogicException('Cannot associate a revoked AccessToken with RefreshToken.');
+        }
+
+        $this->access_token_id = $accessToken->getPrimaryKey();
+        $this->populateRelation('accessToken', $accessToken);
     }
 
     public function setExpiryDateTime(DateTimeImmutable $dateTime): void
