@@ -102,6 +102,12 @@ class RefreshToken extends ActiveRecord implements RefreshTokenEntityInterface
             throw new LogicException('Invalid AccessToken entity.');
         }
 
+        Yii::info('AccessToken details: ' . json_encode([
+                'id' => $accessToken->id ?? null,
+                'status' => $accessToken->status ?? null,
+                'identifier' => $accessToken->identifier ?? null,
+            ]), 'auth');
+
         if ($accessToken->status !== AccessToken::STATUS_ACTIVE) {
             Yii::error('Attempting to associate a revoked AccessToken with RefreshToken. AccessToken ID: ' . $accessToken->id, 'auth');
             throw new LogicException('Cannot associate a revoked AccessToken with RefreshToken.');
