@@ -250,7 +250,7 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
 
     public function toString(): string
     {
-        // TODO: Implement toString() method.
+        return 'not-implemented';
     }
 
     /**
