@@ -8,7 +8,6 @@ use DateMalformedStringException;
 use DateTimeImmutable;
 use Exception;
 use Lcobucci\JWT\Builder;
-use League\OAuth2\Server\CryptKeyInterface;
 use League\OAuth2\Server\CryptTrait;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
@@ -245,15 +244,6 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
         $this->scopes[] = $scope;
     }
 
-    public function setPrivateKey(CryptKeyInterface $privateKey): void
-    {
-        // TODO: Implement setPrivateKey() method.
-    }
-
-    public function toString(): string
-    {
-        return 'not-implemented';
-    }
 
     /**
      * Override it in order to set additional public or private claims.
