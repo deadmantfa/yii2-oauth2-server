@@ -9,7 +9,6 @@ use DateTimeImmutable;
 use Exception;
 use Lcobucci\JWT\Builder;
 use League\OAuth2\Server\CryptKeyInterface;
-use League\OAuth2\Server\CryptTrait;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
@@ -49,7 +48,7 @@ use yii\helpers\VarDumper;
  */
 class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, RateLimitInterface
 {
-    use CryptTrait, EntityTrait;
+    use EntityTrait;
     use AccessTokenTrait, TokenEntityTrait;
 
     const TYPE_BEARER = 1;
