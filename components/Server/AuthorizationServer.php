@@ -13,12 +13,37 @@ use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
+use League\OAuth2\Server\CryptKey;
+use League\OAuth2\Server\CryptKeyInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
+use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
+use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
+use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class AuthorizationServer extends \League\OAuth2\Server\AuthorizationServer
 {
+    protected CryptKeyInterface $publicKey;
+
+    public function __construct(
+        ClientRepositoryInterface      $clientRepository,
+        AccessTokenRepositoryInterface $accessTokenRepository,
+        ScopeRepositoryInterface       $scopeRepository,
+        CryptKey                       $privateKey,
+        CryptKey                       $publicKey,           // <--- Add this
+        string                         $encryptionKey = null,
+        ?EventDispatcherInterface      $eventDispatcher = null
+    )
+    {
+        // Call parent constructor
+        parent::__construct($clientRepository, $accessTokenRepository, $scopeRepository, $privateKey, $encryptionKey, $eventDispatcher);
+
+        // Initialize your $publicKey
+        $this->publicKey = $publicKey;
+    }
+
     /**
      * Handles the token request and emits an authorization event.
      *
