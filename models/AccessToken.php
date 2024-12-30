@@ -8,11 +8,10 @@ use DateMalformedStringException;
 use DateTimeImmutable;
 use Exception;
 use Lcobucci\JWT\Builder;
-use League\OAuth2\Server\CryptTrait;
+use League\OAuth2\Server\CryptKeyInterface;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
-use League\OAuth2\Server\Entities\Traits\AccessTokenTrait;
 use League\OAuth2\Server\Entities\Traits\TokenEntityTrait;
 use LogicException;
 use Yii;
@@ -48,7 +47,7 @@ use yii\helpers\VarDumper;
  */
 class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, RateLimitInterface
 {
-    use CryptTrait, AccessTokenTrait, TokenEntityTrait, EntityTrait;
+    use TokenEntityTrait, EntityTrait;
 
     const TYPE_BEARER = 1;
     const TYPE_MAC = 2;
@@ -242,6 +241,16 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
             $this->scopes = [];
         }
         $this->scopes[] = $scope;
+    }
+
+    public function setPrivateKey(CryptKeyInterface $privateKey): void
+    {
+        // TODO: Implement setPrivateKey() method.
+    }
+
+    public function toString(): string
+    {
+        // TODO: Implement toString() method.
     }
 
     /**
