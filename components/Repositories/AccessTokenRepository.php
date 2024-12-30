@@ -25,14 +25,11 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         if (!$accessTokenEntity instanceof AccessToken) {
             throw new RuntimeException('Invalid AccessToken entity type');
         }
-        $model = new AccessToken();
-        $model->client_id = $accessTokenEntity->getClient()->getId();
-        $model->user_id = $accessTokenEntity->getUserIdentifier();
-        $model->identifier = $accessTokenEntity->getIdentifier(); // Ensure this is set
-        $model->expired_at = $accessTokenEntity->getExpiryDateTime()->getTimestamp();
-        $model->status = AccessToken::STATUS_ACTIVE;
+        $accessTokenEntity->identifier = $accessTokenEntity->getIdentifier();
+        $accessTokenEntity->expired_at = $accessTokenEntity->getExpiryDateTime()->getTimestamp();
+        $accessTokenEntity->status = AccessToken::STATUS_ACTIVE;
 
-        if (!$model->save()) {
+        if (!$accessTokenEntity->save()) {
             Yii::error('Failed to save access token: ' . json_encode($model->getErrors()), 'auth');
             throw new RuntimeException('Failed to save access token');
         }
@@ -63,7 +60,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 
         $newToken->status = AccessToken::STATUS_ACTIVE;
         // Generate a unique identifier for the token
-        $newToken->setIdentifier(Yii::$app->security->generateRandomString(40));
+//        $newToken->setIdentifier(Yii::$app->security->generateRandomString(40));
         return $newToken;
     }
 }
