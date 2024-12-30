@@ -204,7 +204,7 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
     {
         $clientClass = Yii::$app->getModule('oauth2')->modelMap['Client'] ?? Client::class;
         Yii::info('AccessToken::getRelatedClient() using client class: ' . $clientClass, 'auth');
-        return $this->hasOne($clientClass, ['id' => 'client_id']);
+        return $this->hasOne($clientClass, ['identifier' => 'client_id']);
     }
 
     /**
