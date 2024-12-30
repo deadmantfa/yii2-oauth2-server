@@ -25,8 +25,6 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         if (!$accessTokenEntity instanceof AccessToken) {
             throw new RuntimeException('Invalid AccessToken entity type');
         }
-        $accessTokenEntity->client_id = $accessTokenEntity->getClient()->id;
-        $accessTokenEntity->user_id = $accessTokenEntity->getUserIdentifier();
         $accessTokenEntity->identifier = $accessTokenEntity->getIdentifier();
         $accessTokenEntity->expired_at = $accessTokenEntity->getExpiryDateTime()->getTimestamp();
         $accessTokenEntity->status = AccessToken::STATUS_ACTIVE;

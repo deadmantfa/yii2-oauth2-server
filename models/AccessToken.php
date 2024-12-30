@@ -240,7 +240,7 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
 
     public function setClient(ClientEntityInterface $client): void
     {
-        $this->client_id = $client->getIdentifier();
+        $this->client_id = $client->getId();
     }
 
     public function addScope(ScopeEntityInterface $scope): void
