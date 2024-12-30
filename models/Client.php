@@ -194,7 +194,7 @@ class Client extends ActiveRecord implements ClientEntityInterface
         return $this->secret !== null;
     }
 
-    public function getId(): string
+    public function getId(): int
     {
         return $this->id;
     }
