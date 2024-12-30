@@ -9,10 +9,8 @@ use DateTimeImmutable;
 use Exception;
 use Lcobucci\JWT\Builder;
 use League\OAuth2\Server\CryptKeyInterface;
-use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
-use League\OAuth2\Server\Entities\Traits\AccessTokenTrait;
 use League\OAuth2\Server\Entities\Traits\TokenEntityTrait;
 use LogicException;
 use Yii;
@@ -46,10 +44,10 @@ use yii\helpers\VarDumper;
  *
  * @todo save transaction
  */
-class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, RateLimitInterface
+class AccessToken extends ActiveRecord implements RateLimitInterface
 {
     use EntityTrait;
-    use AccessTokenTrait, TokenEntityTrait;
+    use TokenEntityTrait;
 
     const TYPE_BEARER = 1;
     const TYPE_MAC = 2;
