@@ -3,6 +3,7 @@
 namespace deadmantfa\yii2\oauth2\server\components\Repositories;
 
 use DateMalformedStringException;
+use deadmantfa\yii2\oauth2\server\models\AccessToken;
 use deadmantfa\yii2\oauth2\server\models\RefreshToken;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
