@@ -26,6 +26,7 @@ use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\filters\RateLimitInterface;
 use yii\helpers\ArrayHelper;
+use yii\helpers\VarDumper;
 
 /**
  * Class AccessToken
@@ -164,9 +165,9 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
      */
     public function getClient(): ClientEntityInterface
     {
-        $client = $this->getRelatedClient();
+        $client = $this->getRelatedClient()->one();
 
-        Yii::info('AccessToken::getClient(): Resolved client: ' . print_r($client, true), 'auth');
+        Yii::info('AccessToken::getClient(): Resolved client: ' . VarDumper::dumpAsString($client), 'auth');
 
         if (!$client instanceof ClientEntityInterface) {
             Yii::error('AccessToken::getClient() failed. No valid client entity found for client_id: ' . $this->client_id, 'auth');
@@ -255,22 +256,27 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
 
     public function setPrivateKey(CryptKeyInterface $privateKey): void
     {
-        // TODO: Implement setPrivateKey() method.
+        // Assuming you want to store it for later use
+        $this->privateKey = $privateKey;
     }
 
     public function setExpiryDateTime(DateTimeImmutable $dateTime): void
     {
-        // TODO: Implement setExpiryDateTime() method.
+        $this->expired_at = $dateTime->getTimestamp();
     }
 
     public function setClient(ClientEntityInterface $client): void
     {
-        // TODO: Implement setClient() method.
+        $this->client_id = $client->getIdentifier();
     }
 
     public function addScope(ScopeEntityInterface $scope): void
     {
-        // TODO: Implement addScope() method.
+        // Ensure $this->scopes is initialized
+        if (!is_array($this->scopes)) {
+            $this->scopes = [];
+        }
+        $this->scopes[] = $scope;
     }
 
     /**
