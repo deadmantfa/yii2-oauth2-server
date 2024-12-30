@@ -169,7 +169,7 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
         Yii::info('AccessToken::getClient(): Resolved client: ' . print_r($client, true), 'auth');
 
         if (!$client instanceof ClientEntityInterface) {
-            Yii::error('AccessToken::getClient() failed. Resolved object: ' . print_r($client, true), 'auth');
+            Yii::error('AccessToken::getClient() failed. No valid client entity found for client_id: ' . $this->client_id, 'auth');
             throw new LogicException('AccessToken::getClient(): Unable to resolve a valid client entity.');
         }
 
