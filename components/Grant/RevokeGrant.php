@@ -41,6 +41,9 @@ class RevokeGrant extends AbstractGrant
         throw new LogicException('This grant does not use this method.');
     }
 
+    /**
+     * @throws OAuthServerException
+     */
     public function respondToRevokeTokenRequest(
         ServerRequestInterface $request,
         ResponseTypeInterface  $response

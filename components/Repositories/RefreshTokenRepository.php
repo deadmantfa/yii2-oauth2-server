@@ -13,6 +13,7 @@ use yii\base\Component;
 use yii\caching\Dependency;
 use yii\caching\TagDependency;
 use yii\db\Exception;
+use yii\helpers\VarDumper;
 
 /**
  * Class RefreshTokenRepository
@@ -43,6 +44,8 @@ class RefreshTokenRepository extends Component implements RefreshTokenRepository
     public function persistNewRefreshToken(RefreshTokenEntityInterface $refreshTokenEntity): void
     {
         if ($refreshTokenEntity instanceof RefreshToken) {
+            VarDumper::dump($refreshTokenEntity);
+            exit;
             $refreshTokenEntity->expired_at = $refreshTokenEntity->getExpiryDateTime()->getTimestamp();
             if (!$refreshTokenEntity->save()) {
                 throw OAuthServerException::serverError('Failed to save refresh token.');
