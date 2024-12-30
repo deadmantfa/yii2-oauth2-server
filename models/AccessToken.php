@@ -135,7 +135,7 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
      */
     public function getClient(): ClientEntityInterface
     {
-        $client = $this->relatedClient;
+        $client = $this->getRelatedClient()->one();
 
         Yii::info('AccessToken::getClient(): Resolved client: ' . VarDumper::dumpAsString($client), 'auth');
 
@@ -145,6 +145,13 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
         }
 
         return $client;
+    }
+
+    public function getRelatedClient(): ActiveQuery
+    {
+        $clientClass = Yii::$app->getModule('oauth2')->modelMap['Client'] ?? Client::class;
+        Yii::info('AccessToken::getRelatedClient() using client class: ' . $clientClass, 'auth');
+        return $this->hasOne($clientClass, ['id' => 'client_id']);
     }
 
     /**
@@ -168,13 +175,6 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
         }
 
         return array_values($this->scopes);
-    }
-
-    public function getRelatedClient(): ActiveQuery
-    {
-        $clientClass = Yii::$app->getModule('oauth2')->modelMap['Client'] ?? Client::class;
-        Yii::info('AccessToken::getRelatedClient() using client class: ' . $clientClass, 'auth');
-        return $this->hasOne($clientClass, ['identifier' => 'client_id']);
     }
 
     /**
