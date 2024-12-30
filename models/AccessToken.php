@@ -8,10 +8,6 @@ use DateMalformedStringException;
 use DateTimeImmutable;
 use Exception;
 use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Configuration;
-use Lcobucci\JWT\Signer\Key\InMemory;
-use Lcobucci\JWT\Signer\Rsa\Sha256;
-use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\CryptKeyInterface;
 use League\OAuth2\Server\CryptTrait;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
@@ -135,29 +131,6 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
     {
         return $this->hasMany(Scope::class, ['id' => 'scope_id'])
             ->viaTable('{{auth__access_token_scope}}', ['access_token_id' => 'id']);
-    }
-
-    /**
-     * {}
-     * @throws DateMalformedStringException
-     */
-
-
-    public function convertToJWT(CryptKey $privateKey): string
-    {
-        $signer = new Sha256();
-        $key = InMemory::file($privateKey->getKeyPath(), $privateKey->getPassPhrase());
-
-        $jwtConfig = Configuration::forAsymmetricSigner($signer, $key, $key);
-
-        $builder = $jwtConfig->builder()
-            ->issuedBy($this->getClient()->getIdentifier())
-            ->identifiedBy($this->getIdentifier())
-            ->issuedAt(new DateTimeImmutable())
-            ->expiresAt($this->getExpiryDateTime())
-            ->withClaim('scopes', $this->getScopes());
-
-        return $jwtConfig->builder()->getToken($signer, $key)->toString();
     }
 
     /**
