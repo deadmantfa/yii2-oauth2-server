@@ -98,6 +98,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
                 $this->getComponent('accessTokenRepository'),
                 $this->getComponent('scopeRepository'),
                 $this->privateKey,
+                $this->publicKey,
                 $this->encryptionKey
             );
 
