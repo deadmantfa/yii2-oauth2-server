@@ -4,15 +4,8 @@ declare(strict_types=1);
 
 namespace deadmantfa\yii2\oauth2\server\components\Server;
 
-use DateTimeZone;
-use deadmantfa\yii2\oauth2\server\components\Events\AuthorizationEvent;
 use deadmantfa\yii2\oauth2\server\components\Grant\RevokeGrant;
 use deadmantfa\yii2\oauth2\server\components\ResponseTypes\RevokeResponse;
-use Lcobucci\Clock\SystemClock;
-use Lcobucci\JWT\Configuration;
-use Lcobucci\JWT\Signer\Key\InMemory;
-use Lcobucci\JWT\Signer\Rsa\Sha256;
-use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\CryptKeyInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
@@ -46,56 +39,6 @@ class AuthorizationServer extends \League\OAuth2\Server\AuthorizationServer
             $publicKey = new CryptKey($publicKey);
         }
         $this->publicKey = $publicKey;
-    }
-
-    /**
-     * Handles the token request and emits an authorization event.
-     *
-     * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
-     * @return ResponseInterface
-     * @throws OAuthServerException
-     */
-    public function respondToAccessTokenRequest(
-        ServerRequestInterface $request,
-        ResponseInterface      $response
-    ): ResponseInterface
-    {
-        $response = parent::respondToAccessTokenRequest($request, $response);
-
-        // Emit the authorization event
-        $this->getEmitter()->emit(
-            new AuthorizationEvent(
-                $request,
-                $response,
-                $this->getJwtConfiguration() // Ensure JWT configuration is passed
-            )
-        );
-
-        return $response;
-    }
-
-    /**
-     * Returns the JWT configuration instance for token parsing and validation.
-     *
-     * @return Configuration
-     */
-    private function getJwtConfiguration(): Configuration
-    {
-        // Use a proper RSA key for signing and validation
-        $signer = new Sha256();
-        $publicKey = InMemory::file($this->publicKey->getKeyContents()); // Replace with actual public key path
-        $privateKey = InMemory::file($this->privateKey); // Replace with actual private key path
-
-        // Create JWT Configuration
-        $jwtConfig = Configuration::forAsymmetricSigner($signer, $privateKey, $publicKey);
-
-        // Set validation constraints
-        $jwtConfig->setValidationConstraints(
-            new StrictValidAt(new SystemClock(new DateTimeZone('UTC')))
-        );
-
-        return $jwtConfig;
     }
 
     /**
