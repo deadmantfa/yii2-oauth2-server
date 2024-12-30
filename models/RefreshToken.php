@@ -2,6 +2,7 @@
 
 namespace deadmantfa\yii2\oauth2\server\models;
 
+use DateMalformedStringException;
 use DateTimeImmutable;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
@@ -122,6 +123,9 @@ class RefreshToken extends ActiveRecord implements RefreshTokenEntityInterface
         $this->expired_at = $dateTime->getTimestamp();
     }
 
+    /**
+     * @throws DateMalformedStringException
+     */
     public function getExpiryDateTime(): DateTimeImmutable
     {
         if (empty($this->expired_at)) {

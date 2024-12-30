@@ -2,6 +2,7 @@
 
 namespace deadmantfa\yii2\oauth2\server\components\Repositories;
 
+use DateMalformedStringException;
 use deadmantfa\yii2\oauth2\server\models\RefreshToken;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
@@ -39,7 +40,7 @@ class RefreshTokenRepository extends Component implements RefreshTokenRepository
      *
      * @param RefreshTokenEntityInterface|RefreshToken $refreshTokenEntity
      * @return RefreshTokenEntityInterface|RefreshToken
-     * @throws OAuthServerException|Exception
+     * @throws OAuthServerException|Exception|DateMalformedStringException
      */
     public function persistNewRefreshToken(RefreshTokenEntityInterface $refreshTokenEntity): void
     {
