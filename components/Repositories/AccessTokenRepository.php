@@ -60,7 +60,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 
         $newToken->status = AccessToken::STATUS_ACTIVE;
         // Generate a unique identifier for the token
-//        $newToken->setIdentifier(Yii::$app->security->generateRandomString(40));
+        $newToken->setIdentifier(Yii::$app->security->generateRandomString(40));
         return $newToken;
     }
 }
