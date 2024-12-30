@@ -43,8 +43,9 @@ class AuthorizationServer extends \League\OAuth2\Server\AuthorizationServer
         // Initialize your $publicKey
 
         if ($publicKey instanceof CryptKeyInterface === false) {
-            $privateKey = new CryptKey($publicKey);
+            $publicKey = new CryptKey($publicKey);
         }
+        $this->publicKey = $publicKey;
     }
 
     /**
