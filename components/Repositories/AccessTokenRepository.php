@@ -48,6 +48,9 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         return !$token || $token->is_revoked;
     }
 
+    /**
+     * @throws \yii\base\Exception
+     */
     public function getNewToken(ClientEntityInterface $clientEntity, array $scopes, ?string $userIdentifier = null): AccessTokenEntityInterface
     {
         // Ensure no pre-existing tokens are reused

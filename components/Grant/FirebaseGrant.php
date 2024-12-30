@@ -181,6 +181,7 @@ class FirebaseGrant extends AbstractGrant
         // Set identifier explicitly
         $identifier = $this->generateUniqueIdentifier();
         $accessToken->setIdentifier($identifier);
+        $accessToken->setPrivateKey($this->privateKey);
 
         Yii::info('Generated AccessToken. Identifier: ' . $identifier, 'auth');
 
