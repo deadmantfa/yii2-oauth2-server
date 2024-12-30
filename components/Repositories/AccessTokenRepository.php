@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace deadmantfa\yii2\oauth2\server\components\Repositories;
 
+use DateMalformedStringException;
 use deadmantfa\yii2\oauth2\server\models\AccessToken;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
@@ -16,9 +17,14 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 {
     /**
      * @throws Exception
+     * @throws DateMalformedStringException
      */
     public function persistNewAccessToken(AccessTokenEntityInterface $accessTokenEntity): void
     {
+        // $accessTokenEntity IS the AR instance
+        if (!$accessTokenEntity instanceof AccessToken) {
+            throw new RuntimeException('Invalid AccessToken entity type');
+        }
         $model = new AccessToken();
         $model->client_id = $accessTokenEntity->getClient()->getId();
         $model->user_id = $accessTokenEntity->getUserIdentifier();
@@ -54,6 +60,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
             $newToken->addScope($scope);
         }
 
+        $newToken->status = AccessToken::STATUS_ACTIVE;
         // Generate a unique identifier for the token
         $newToken->setIdentifier(Yii::$app->security->generateRandomString(40));
         return $newToken;
