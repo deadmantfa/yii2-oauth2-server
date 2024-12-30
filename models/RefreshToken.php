@@ -98,6 +98,7 @@ class RefreshToken extends ActiveRecord implements RefreshTokenEntityInterface
      */
     public function setAccessToken(AccessTokenEntityInterface $accessToken): void
     {
+        Yii::info('AccessToken PK check: ' . var_export($accessToken->getPrimaryKey(), true), 'auth');
         if (!$accessToken instanceof AccessToken) {
             Yii::error('Invalid AccessToken entity passed to setAccessToken.', 'auth');
             throw new LogicException('Invalid AccessToken entity.');
