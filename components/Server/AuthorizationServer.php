@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace deadmantfa\yii2\oauth2\server\components\Server;
 
+use DateTimeZone;
 use deadmantfa\yii2\oauth2\server\components\Events\AuthorizationEvent;
 use deadmantfa\yii2\oauth2\server\components\Grant\RevokeGrant;
 use deadmantfa\yii2\oauth2\server\components\ResponseTypes\RevokeResponse;
@@ -54,15 +55,15 @@ class AuthorizationServer extends \League\OAuth2\Server\AuthorizationServer
     {
         // Use a proper RSA key for signing and validation
         $signer = new Sha256();
-        $publicKey = InMemory::file('/path/to/public.key'); // Replace with actual public key path
-        $privateKey = InMemory::file('/path/to/private.key'); // Replace with actual private key path
+        $publicKey = InMemory::file($this->publicKey->getKeyContents()); // Replace with actual public key path
+        $privateKey = InMemory::file($this->privateKey); // Replace with actual private key path
 
         // Create JWT Configuration
         $jwtConfig = Configuration::forAsymmetricSigner($signer, $privateKey, $publicKey);
 
         // Set validation constraints
         $jwtConfig->setValidationConstraints(
-            new StrictValidAt(new SystemClock())
+            new StrictValidAt(new SystemClock(new DateTimeZone('UTC')))
         );
 
         return $jwtConfig;

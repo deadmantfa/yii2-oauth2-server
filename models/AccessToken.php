@@ -48,8 +48,7 @@ use yii\helpers\VarDumper;
  */
 class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, RateLimitInterface
 {
-    use CryptTrait, EntityTrait;
-    use AccessTokenTrait, TokenEntityTrait;
+    use CryptTrait, AccessTokenTrait, TokenEntityTrait, EntityTrait;
 
     const TYPE_BEARER = 1;
     const TYPE_MAC = 2;
