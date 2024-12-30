@@ -48,6 +48,7 @@ class Client extends ActiveRecord implements ClientEntityInterface
     const GRANT_TYPE_CLIENT_CREDENTIALS = 4;
     const GRANT_TYPE_REFRESH_TOKEN = 5;
     const GRANT_TYPE_REVOKE = 6;
+    const GRANT_TYPE_FIREBASE = 7;
     private ?ResponseTypeInterface $_responseType = null;
 
 
@@ -135,6 +136,7 @@ class Client extends ActiveRecord implements ClientEntityInterface
             static::GRANT_TYPE_CLIENT_CREDENTIALS => 'client_credentials',
             static::GRANT_TYPE_REFRESH_TOKEN => 'refresh_token',
             static::GRANT_TYPE_REVOKE => 'revoke',
+            static::GRANT_TYPE_FIREBASE => 'firebase',
         ];
     }
 

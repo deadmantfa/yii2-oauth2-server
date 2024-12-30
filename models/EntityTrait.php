@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace deadmantfa\yii2\oauth2\server\models;
 
+use LogicException;
+use Yii;
 use yii\db\ActiveRecordInterface;
 
 trait EntityTrait
@@ -15,8 +17,12 @@ trait EntityTrait
      */
     public function getIdentifier(): string
     {
-        /** @var ActiveRecordInterface $this */
-        return $this->getAttribute('identifier');
+        if (empty($this->identifier)) {
+            Yii::error('AccessToken identifier is missing.', 'auth');
+            throw new LogicException('AccessToken identifier must not be null or empty.');
+        }
+
+        return $this->identifier;
     }
 
     /**

@@ -22,8 +22,8 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         $model = new AccessToken();
         $model->client_id = $accessTokenEntity->getClient()->getId();
         $model->user_id = $accessTokenEntity->getUserIdentifier();
-        $model->identifier = $accessTokenEntity->getIdentifier();
-        $model->expired_at = $accessTokenEntity->getExpiryDateTime()->getTimestamp(); // Ensure expired_at is set
+        $model->identifier = $accessTokenEntity->getIdentifier(); // Ensure this is set
+        $model->expired_at = $accessTokenEntity->getExpiryDateTime()->getTimestamp();
         $model->status = AccessToken::STATUS_ACTIVE;
 
         if (!$model->save()) {
@@ -54,6 +54,8 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
             $newToken->addScope($scope);
         }
 
+        // Generate a unique identifier for the token
+        $newToken->setIdentifier(Yii::$app->security->generateRandomString(40));
         return $newToken;
     }
 }
