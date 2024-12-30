@@ -31,8 +31,8 @@ class AuthorizationServer extends \League\OAuth2\Server\AuthorizationServer
         ClientRepositoryInterface      $clientRepository,
         AccessTokenRepositoryInterface $accessTokenRepository,
         ScopeRepositoryInterface       $scopeRepository,
-        CryptKey                       $privateKey,
-        CryptKey                       $publicKey,           // <--- Add this
+        CryptKeyInterface|string       $privateKey,
+        CryptKeyInterface|string       $publicKey,           // <--- Add this
         string                         $encryptionKey = null,
         ?EventDispatcherInterface      $eventDispatcher = null
     )
@@ -41,7 +41,10 @@ class AuthorizationServer extends \League\OAuth2\Server\AuthorizationServer
         parent::__construct($clientRepository, $accessTokenRepository, $scopeRepository, $privateKey, $encryptionKey, $eventDispatcher);
 
         // Initialize your $publicKey
-        $this->publicKey = $publicKey;
+
+        if ($publicKey instanceof CryptKeyInterface === false) {
+            $privateKey = new CryptKey($publicKey);
+        }
     }
 
     /**
