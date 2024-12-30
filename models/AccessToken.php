@@ -8,9 +8,11 @@ use DateMalformedStringException;
 use DateTimeImmutable;
 use Exception;
 use Lcobucci\JWT\Builder;
-use League\OAuth2\Server\CryptKeyInterface;
+use League\OAuth2\Server\CryptTrait;
+use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
+use League\OAuth2\Server\Entities\Traits\AccessTokenTrait;
 use League\OAuth2\Server\Entities\Traits\TokenEntityTrait;
 use LogicException;
 use Yii;
@@ -44,10 +46,10 @@ use yii\helpers\VarDumper;
  *
  * @todo save transaction
  */
-class AccessToken extends ActiveRecord implements RateLimitInterface
+class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, RateLimitInterface
 {
-    use EntityTrait;
-    use TokenEntityTrait;
+    use CryptTrait, EntityTrait;
+    use AccessTokenTrait, TokenEntityTrait;
 
     const TYPE_BEARER = 1;
     const TYPE_MAC = 2;
@@ -222,12 +224,6 @@ class AccessToken extends ActiveRecord implements RateLimitInterface
             'allowance_updated_at' => $timestamp,
             'updated_at' => $timestamp,
         ]);
-    }
-
-    public function setPrivateKey(CryptKeyInterface $privateKey): void
-    {
-        // Assuming you want to store it for later use
-        $this->privateKey = $privateKey;
     }
 
     public function setExpiryDateTime(DateTimeImmutable $dateTime): void
