@@ -32,7 +32,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         $accessTokenEntity->status = AccessToken::STATUS_ACTIVE;
 
         if (!$accessTokenEntity->save()) {
-            Yii::error('Failed to save access token: ' . json_encode($model->getErrors()), 'auth');
+            Yii::error('Failed to save access token: ' . json_encode($accessTokenEntity->getErrors()), 'auth');
             throw new RuntimeException('Failed to save access token');
         }
         Yii::info('Saved AccessToken AR: ' . var_export($accessTokenEntity->id, true), 'auth');
