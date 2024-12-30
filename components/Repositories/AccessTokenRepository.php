@@ -20,7 +20,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     public function persistNewAccessToken(AccessTokenEntityInterface $accessTokenEntity): void
     {
         $model = new AccessToken();
-        $model->client_id = $accessTokenEntity->getClient()->getIdentifier();
+        $model->client_id = $accessTokenEntity->getClient()->getId();
         $model->user_id = $accessTokenEntity->getUserIdentifier();
         $model->identifier = $accessTokenEntity->getIdentifier();
         $model->expired_at = $accessTokenEntity->getExpiryDateTime()->getTimestamp(); // Ensure expired_at is set
@@ -47,7 +47,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     public function getNewToken(ClientEntityInterface $clientEntity, array $scopes, ?string $userIdentifier = null): AccessTokenEntityInterface
     {
         $token = new AccessToken();
-        $token->client_id = $clientEntity->getIdentifier();
+        $token->client_id = $clientEntity->getId();
         $token->user_id = $userIdentifier;
 
         foreach ($scopes as $scope) {

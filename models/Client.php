@@ -191,6 +191,11 @@ class Client extends ActiveRecord implements ClientEntityInterface
 
     public function isConfidential(): bool
     {
-        return true;
+        return $this->secret !== null;
+    }
+
+    public function getId(): string
+    {
+        return $this->id;
     }
 }
