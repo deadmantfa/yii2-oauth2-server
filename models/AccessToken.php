@@ -21,7 +21,6 @@ use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\filters\RateLimitInterface;
 use yii\helpers\ArrayHelper;
-use yii\helpers\VarDumper;
 
 /**
  * Class AccessToken
@@ -138,7 +137,7 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
     {
         $client = $this->getRelatedClient()->one();
 
-        Yii::info('AccessToken::getClient(): Resolved client: ' . VarDumper::dumpAsString($client), 'auth');
+//        Yii::info('AccessToken::getClient(): Resolved client: ' . VarDumper::dumpAsString($client), 'auth');
 
         if (!$client instanceof ClientEntityInterface) {
             Yii::error('AccessToken::getClient() failed. No valid client entity found for client_id: ' . $this->client_id, 'auth');

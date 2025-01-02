@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace deadmantfa\yii2\oauth2\server\components\AuthMethods;
 
-use deadmantfa\yii2\oauth2\server\components\AuthorizationValidators\BearerTokenValidator;
 use League\OAuth2\Server\AuthorizationValidators\AuthorizationValidatorInterface;
+use League\OAuth2\Server\AuthorizationValidators\BearerTokenValidator;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use Yii;
 use yii\base\InvalidConfigException;
@@ -27,6 +27,9 @@ class HttpBearerAuth extends AuthMethod
         return 'Bearer';
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     protected function getAuthorizationValidator(): AuthorizationValidatorInterface
     {
         if ($this->_authorizationValidator === null) {
