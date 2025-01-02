@@ -20,6 +20,9 @@ class ClientQuery extends ActiveQuery
     public function grant(string|int $grantType): self
     {
         $grantTypeId = is_numeric($grantType) ? $grantType : Client::getGrantTypeId($grantType, -999);
+        if ($grantTypeId === 5) {
+            return $this;
+        }
         return $this->andWhere([Client::tableName() . '.grant_type' => $grantTypeId]);
     }
 
