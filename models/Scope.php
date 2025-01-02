@@ -14,6 +14,15 @@ class Scope extends ActiveRecord implements ScopeEntityInterface
         return '{{%auth__scope}}';
     }
 
+    /**
+     * @inheritdoc
+     * @return ClientQuery
+     */
+    public static function find(): ScopeQuery
+    {
+        return new ScopeQuery(get_called_class());
+    }
+
     public function jsonSerialize(): string
     {
         return $this->getIdentifier();

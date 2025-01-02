@@ -50,7 +50,7 @@ class RefreshTokenRepository extends Component implements RefreshTokenRepository
         }
 
         $accessToken = $refreshTokenEntity->getAccessToken();
-        if (!$accessToken || $accessToken->status !== AccessToken::STATUS_ACTIVE) {
+        if ($accessToken->status !== AccessToken::STATUS_ACTIVE) {
             throw new LogicException('Cannot persist RefreshToken with an invalid or revoked AccessToken.');
         }
 
