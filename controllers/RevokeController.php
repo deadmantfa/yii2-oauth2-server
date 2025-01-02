@@ -7,8 +7,8 @@ namespace deadmantfa\yii2\oauth2\server\controllers;
 use deadmantfa\yii2\oauth2\server\models\AccessToken;
 use deadmantfa\yii2\oauth2\server\Module;
 use League\OAuth2\Server\Exception\OAuthServerException;
+use Psr\Http\Message\StreamInterface;
 use Throwable;
-use yii\helpers\Json;
 use yii\rest\ActiveController;
 use yii\rest\OptionsAction;
 use yii\web\HttpException;
@@ -27,7 +27,7 @@ class RevokeController extends ActiveController
     /**
      * @throws HttpException
      */
-    public function actionCreate(): array
+    public function actionCreate(): StreamInterface
     {
         /** @var Module $module */
         $module = $this->module;
@@ -39,11 +39,9 @@ class RevokeController extends ActiveController
                     $module->getServerResponse()
                 );
 
-            return Json::decode((string)$response->getBody());
-        } catch (OAuthServerException $exception) {
-            throw new HttpException($exception->getHttpStatusCode(), $exception->getMessage(), 0, $exception);
-        } catch (Throwable $exception) {
-            throw new HttpException(500, 'Unable to process the request.', 0, $exception);
+            return $response->getBody();
+        } catch (OAuthServerException|Throwable $exception) {
+            throw new HttpException($exception->statusCode ?? $exception->getHttpStatusCode(), $exception->getMessage(), 0);
         }
     }
 }

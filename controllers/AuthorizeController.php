@@ -54,10 +54,8 @@ class AuthorizeController extends ActiveController
             );
 
             return Json::decode((string)$response->getBody());
-        } catch (OAuthServerException $exception) {
-            throw new HttpException($exception->getHttpStatusCode(), $exception->getMessage(), 0, $exception);
-        } catch (Throwable $exception) {
-            throw new HttpException(500, 'Unable to process the authorization request.', 0, $exception);
+        } catch (OAuthServerException|Throwable $exception) {
+            throw new HttpException($exception->statusCode ?? $exception->getHttpStatusCode(), $exception->getMessage(), 0);
         }
     }
 }
