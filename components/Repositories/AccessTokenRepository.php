@@ -39,13 +39,13 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     public function revokeAccessToken(string $tokenId): void
     {
         $token = AccessToken::findOne(['identifier' => $tokenId]);
-        $token?->updateAttributes(['is_revoked' => true]);
+        $token?->updateAttributes(['status' => AccessToken::STATUS_REVOKED]);
     }
 
     public function isAccessTokenRevoked(string $tokenId): bool
     {
         $token = AccessToken::findOne(['identifier' => $tokenId]);
-        return !$token || $token->is_revoked;
+        return !$token || $token->status === AccessToken::STATUS_REVOKED;
     }
 
     /**

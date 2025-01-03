@@ -57,11 +57,6 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
 
     const STATUS_ACTIVE = 1;
     const STATUS_REVOKED = -10;
-    /**
-     * @var mixed|null
-     */
-    public mixed $is_revoked;
-
 
     /**
      * {@inheritdoc}
