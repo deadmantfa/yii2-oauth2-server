@@ -25,6 +25,24 @@ class TokenController extends ActiveController
         ];
     }
 
+    public function behaviors(): array
+    {
+        $behaviors = parent::behaviors();
+
+        // Retrieve the module's getCorsBehavior()
+        // (only returns something if enableCors=true)
+        /** @var Module $module */
+        $module = $this->module;
+        $corsBehavior = $module->getCorsBehavior();
+
+        if ($corsBehavior !== null) {
+            // Insert the CORS config into this controller's behaviors
+            $behaviors['cors'] = $corsBehavior;
+        }
+
+        return $behaviors;
+    }
+
     /**
      * @throws HttpException
      * @throws BadRequestHttpException

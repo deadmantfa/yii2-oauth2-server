@@ -224,7 +224,52 @@ Content-Type: application/json
 ```
 The plugin revokes tokens in the DB. The next time the resource server checks that token, it’s marked invalid.
 
-## 7. Additional Notes
+## 7. Optional CORS Support
+If you want to handle CORS within this plugin (e.g. for /oauth2/token calls in front-end apps), you can either:
+
+- (A) Configure CORS globally in your Yii2 app (recommended for most setups), or
+- (B) Enable a built-in CORS filter inside this module’s controllers.
+
+### 7.1 Sample Global CORS
+In your main ```config/main.php```:
+```php
+'on beforeRequest' => function ($event) {
+    Yii::$app->attachBehavior('globalCors', [
+        'class' => \yii\filters\Cors::class,
+        'cors' => [
+            'Origin' => ['https://yourfrontend.com'],
+            'Access-Control-Allow-Credentials' => true,
+            'Access-Control-Allow-Headers' => ['Authorization', 'Content-Type', 'X-Requested-With', 'Accept', 'Origin', 'Cache-Control', 'Pragma'],
+            'Access-Control-Allow-Methods' => ['GET','POST','OPTIONS','PUT','DELETE'],
+            'Access-Control-Max-Age' => 3600,
+        ],
+    ]);
+},
+```
+
+### 7.2 Built-in CORS in Module
+If you want the plugin to handle it internally, you can define a property like:
+```php
+'modules' => [
+    'oauth2' => [
+        'class' => \deadmantfa\yii2\oauth2\server\Module::class,
+        'enableCors' => true,
+        'corsConfig' => [
+            'class' => \yii\filters\Cors::class,
+            'cors' => [
+                'Origin' => ['*'],
+                'Access-Control-Allow-Credentials' => true,
+                'Access-Control-Allow-Methods' => ['POST','OPTIONS'],
+                'Access-Control-Allow-Headers' => ['Authorization','Content-Type','X-Requested-With','Accept','Origin','Cache-Control','Pragma'],
+                'Access-Control-Max-Age' => 3600,
+            ],
+        ],
+        // ...
+    ],
+],
+```
+
+## 8. Additional Notes
 - For custom grants (like a ```FirebaseGrant``` or a ```PasswordlessGrant```), implement ```GrantTypeInterface``` or extend ```AbstractGrant``` and register it in ```enableGrantTypes```.
 - You can store user IDs as UUID strings or integers. Just ensure your ```UserEntityInterface::getIdentifier()``` returns a string that the library can embed in the token.
 - The library handles JWT signing/verification, so you just need to provide your private/public RSA keys.

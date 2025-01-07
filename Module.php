@@ -44,6 +44,27 @@ class Module extends \yii\base\Module implements BootstrapInterface
     private ?ServerResponse $_serverResponse = null;
     private ?ResponseTypeInterface $_responseType = null;
 
+    /**
+     * Whether or not to apply a CORS filter automatically in plugin controllers.
+     */
+    public bool $enableCors = false;
+
+    /**
+     * Default or user-provided CORS config passed to Yii2's \yii\filters\Cors.
+     */
+    public array $corsConfig = [
+        'class' => \yii\filters\Cors::class,
+        'cors'  => [
+            // Default CORS settings
+            'Origin'                           => ['*'],
+            'Access-Control-Allow-Credentials' => true,
+            'Access-Control-Max-Age'           => 3600,
+            'Access-Control-Allow-Methods'     => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
+            'Access-Control-Allow-Headers'     => [
+                'Authorization', 'Content-Type', 'X-Requested-With', 'Accept', 'Origin', 'Cache-Control', 'Pragma',
+            ],
+        ],
+    ];
     public function bootstrap($app): void
     {
         if ($app instanceof Application) {
@@ -210,5 +231,17 @@ class Module extends \yii\base\Module implements BootstrapInterface
             throw new InvalidArgumentException("Model '{$name}' not found in the model map.");
         }
         return $this->modelMap[$name];
+    }
+
+    /**
+     * This method can be used by controllers to retrieve the final CORS behavior array.
+     */
+    public function getCorsBehavior(): ?array
+    {
+        if (!$this->enableCors) {
+            return null;
+        }
+        // Return the full behavior array
+        return $this->corsConfig;
     }
 }
