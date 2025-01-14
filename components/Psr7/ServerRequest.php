@@ -12,8 +12,6 @@ class ServerRequest extends GuzzleServerRequest
 {
     /**
      * Parsed body of the request.
-     *
-     * @var array|null
      */
     private ?array $parsedBody = null;
 

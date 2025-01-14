@@ -143,10 +143,8 @@ class Module extends \yii\base\Module implements BootstrapInterface
         }
 
         $componentConfig = $this->components[$name];
-        if (is_array($componentConfig)) {
-            if (isset($this->cache[$name])) {
-                $componentConfig = ArrayHelper::merge($componentConfig, ['cache' => $this->cache[$name]]);
-            }
+        if (is_array($componentConfig) && isset($this->cache[$name])) {
+            $componentConfig = ArrayHelper::merge($componentConfig, ['cache' => $this->cache[$name]]);
         }
 
         return Yii::createObject($componentConfig);
