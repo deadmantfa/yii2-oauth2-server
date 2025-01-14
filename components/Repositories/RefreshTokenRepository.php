@@ -75,7 +75,7 @@ class RefreshTokenRepository extends Component implements RefreshTokenRepository
      * @param int|null $duration
      * @param Dependency|null $dependency
      */
-    protected function getCachedToken($tokenId, int $duration = null, Dependency $dependency = null): ?RefreshToken
+    protected function getCachedToken(string|int $tokenId, int $duration = null, Dependency $dependency = null): ?RefreshToken
     {
         try {
             $token = RefreshToken::getDb()

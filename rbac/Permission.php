@@ -36,7 +36,7 @@ class Permission extends \yii\rbac\Permission implements Configurable
      * @internal
      * @return $this
      */
-    protected function prepareChildren(ManagerInterface &$authManager)
+    protected function prepareChildren(ManagerInterface &$authManager): static
     {
         foreach ($this->getChildren() as $permissionName => $permission) {
 
