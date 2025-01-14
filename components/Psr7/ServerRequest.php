@@ -20,7 +20,6 @@ class ServerRequest extends GuzzleServerRequest
     /**
      * Converts Yii2 Request to PSR-7 ServerRequest.
      *
-     * @param Request $request
      * @throws InvalidConfigException
      */
     public function __construct(Request $request)
@@ -48,9 +47,6 @@ class ServerRequest extends GuzzleServerRequest
 
     /**
      * Determines the protocol version for the request.
-     *
-     * @param Request $request
-     * @return string
      */
     private function determineProtocolVersion(Request $request): string
     {
@@ -59,8 +55,6 @@ class ServerRequest extends GuzzleServerRequest
 
     /**
      * Retrieves the parsed body of the request.
-     *
-     * @return array|null
      */
     public function getParsedBody(): ?array
     {

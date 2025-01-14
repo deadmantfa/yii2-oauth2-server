@@ -18,7 +18,7 @@ class OwnedRule extends Rule
     /**
      * {@inheritdoc}
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->createdAt = $this->updatedAt = time();

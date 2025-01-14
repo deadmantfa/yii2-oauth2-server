@@ -12,8 +12,6 @@ trait EntityTrait
 {
     /**
      * Gets the entity's identifier.
-     *
-     * @return string
      */
     public function getIdentifier(): string
     {
@@ -27,8 +25,6 @@ trait EntityTrait
 
     /**
      * Sets the entity's identifier.
-     *
-     * @param string|int $identifier
      */
     public function setIdentifier(string|int $identifier): void
     {

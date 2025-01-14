@@ -60,13 +60,6 @@ class Client extends ActiveRecord implements ClientEntityInterface
         return '{{%auth__client}}';
     }
 
-    /**
-     * @param string $clientIdentifier
-     * @param int|string $grantType
-     * @param string|null $clientSecret
-     * @param bool $mustValidateSecret
-     * @return static|null
-     */
     public static function findEntity(
         string     $clientIdentifier,
         string|int $grantType,
@@ -102,7 +95,6 @@ class Client extends ActiveRecord implements ClientEntityInterface
 
     /**
      * @inheritdoc
-     * @return ClientQuery
      */
     public static function find(): ClientQuery
     {
@@ -182,7 +174,6 @@ class Client extends ActiveRecord implements ClientEntityInterface
 
     /**
      * @param callable|null $callable
-     * @return ClientQuery|ActiveQuery
      * @throws InvalidConfigException
      */
     public function getRelatedScopes(callable $callable = null): ActiveQuery|ClientQuery

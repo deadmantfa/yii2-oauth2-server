@@ -14,7 +14,7 @@ class ScopePermission extends Permission implements Configurable
     /**
      * {@inheritdoc}
      */
-    public function init()
+    public function init(): void
     {
         /** @var ManagerInterface $authManager */
         $authManager = \Yii::$app->authManager;

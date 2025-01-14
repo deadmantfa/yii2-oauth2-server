@@ -12,9 +12,7 @@ interface FirebaseUserRepositoryInterface extends RepositoryInterface
     /**
      * Get a user entity.
      *
-     * @param string $firebaseId
      * @param string $grantType The grant type used
-     * @param ClientEntityInterface $clientEntity
      */
     public function getUserEntityByFirebaseId(
         string                $firebaseId,

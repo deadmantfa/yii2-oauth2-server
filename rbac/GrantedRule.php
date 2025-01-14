@@ -22,7 +22,7 @@ class GrantedRule extends Rule
     /**
      * {@inheritdoc}
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->createdAt = $this->updatedAt = time();
@@ -42,10 +42,10 @@ class GrantedRule extends Rule
             return false;
         }
 
-        return array_search($item->name, array_map(
+        return in_array($item->name, array_map(
                 function (ScopeEntityInterface $scopeEntity) {
                     return $scopeEntity->getIdentifier();
                 }, $identity->getScopes()
-            )) !== false;
+            ));
     }
 }

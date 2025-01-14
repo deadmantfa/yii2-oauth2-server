@@ -11,10 +11,6 @@ trait EntityQueryTrait
 {
     /**
      * Filters by identifier.
-     *
-     * @param string|int $identifier
-     * @param string|null $tableName
-     * @return EntityQueryTrait
      */
     public function identifier(string|int $identifier, ?string $tableName = null): static
     {

@@ -68,7 +68,6 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
 
     /**
      * {@inheritdoc}
-     * @return AccessTokenQuery
      */
     public static function find(): AccessTokenQuery
     {
@@ -242,8 +241,6 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
     /**
      * Override it in order to set additional public or private claims.
      *
-     * @param Builder $builder
-     * @return Builder
      * @see https://tools.ietf.org/html/rfc7519#section-4
      */
     protected function finalizeJWTBuilder(Builder $builder): Builder

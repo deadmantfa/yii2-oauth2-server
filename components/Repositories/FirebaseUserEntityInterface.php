@@ -8,8 +8,6 @@ interface FirebaseUserEntityInterface
 {
     /**
      * Return the user's identifier.
-     *
-     * @return mixed
      */
     public function getIdentifier(): string;
 }

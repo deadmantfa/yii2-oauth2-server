@@ -46,7 +46,6 @@ class RefreshToken extends ActiveRecord implements RefreshTokenEntityInterface
 
     /**
      * {@inheritdoc}
-     * @return RefreshTokenQuery
      */
     public static function find(): RefreshTokenQuery
     {
@@ -71,8 +70,6 @@ class RefreshToken extends ActiveRecord implements RefreshTokenEntityInterface
 
     /**
      * Returns the related `AccessToken` entity.
-     *
-     * @return AccessTokenEntityInterface
      */
     public function getAccessToken(): AccessTokenEntityInterface
     {

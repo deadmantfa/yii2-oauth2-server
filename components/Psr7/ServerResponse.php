@@ -11,8 +11,6 @@ class ServerResponse extends Response
 {
     /**
      * Converts PSR-7 Response to Yii2 Response.
-     *
-     * @return YiiResponse
      */
     public function toYiiResponse(): YiiResponse
     {

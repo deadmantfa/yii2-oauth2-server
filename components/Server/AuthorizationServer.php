@@ -44,9 +44,6 @@ class AuthorizationServer extends \League\OAuth2\Server\AuthorizationServer
     /**
      * Handles token revocation requests.
      *
-     * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
-     * @return ResponseInterface
      * @throws OAuthServerException
      */
     public function respondToRevokeTokenRequest(
@@ -68,8 +65,6 @@ class AuthorizationServer extends \League\OAuth2\Server\AuthorizationServer
 
     /**
      * Get the enabled grant types.
-     *
-     * @return array
      */
     public function getEnabledGrantTypes(): array
     {
@@ -79,10 +74,7 @@ class AuthorizationServer extends \League\OAuth2\Server\AuthorizationServer
     /**
      * Get a parameter from the request body.
      *
-     * @param string $parameter
-     * @param ServerRequestInterface $request
      * @param mixed $default
-     * @return mixed
      */
     protected function getRequestParameter(string $parameter, ServerRequestInterface $request, $default = null): mixed
     {

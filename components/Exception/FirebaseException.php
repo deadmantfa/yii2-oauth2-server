@@ -10,8 +10,6 @@ class FirebaseException extends OAuthServerException
 {
     /**
      * Invalid firebase JWT Token error.
-     *
-     * @return static
      */
     public static function invalidJWTToken(): FirebaseException
     {
@@ -20,8 +18,6 @@ class FirebaseException extends OAuthServerException
 
     /**
      * User not found error.
-     *
-     * @return static
      */
     public static function userNotFound(): FirebaseException
     {
@@ -32,8 +28,6 @@ class FirebaseException extends OAuthServerException
 
     /**
      * Invalid firebase Signature error.
-     *
-     * @return static
      */
     public static function invalidSignature(): FirebaseException
     {
@@ -42,8 +36,6 @@ class FirebaseException extends OAuthServerException
 
     /**
      * Firebase Token has expired.
-     *
-     * @return static
      */
     public static function tokenExpired($message): FirebaseException
     {
@@ -52,8 +44,6 @@ class FirebaseException extends OAuthServerException
 
     /**
      * Issued in the future Error.
-     *
-     * @return static
      */
     public static function issuedInTheFuture($message): FirebaseException
     {
@@ -62,8 +52,6 @@ class FirebaseException extends OAuthServerException
 
     /**
      * Unknown Key issue.
-     *
-     * @return static
      */
     public static function unknownKey($message): FirebaseException
     {
@@ -72,8 +60,6 @@ class FirebaseException extends OAuthServerException
 
     /**
      * Revvoked Id Token
-     *
-     * @return static
      */
     public static function revokedIdToken($message): FirebaseException
     {

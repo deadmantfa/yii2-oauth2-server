@@ -103,7 +103,7 @@ class Mac
     protected function getHeaders(): array
     {
         return array_map(
-            fn($name) => $this->_request->getHeaderLine($name),
+            fn($name): string => $this->_request->getHeaderLine($name),
             $this->getParam('h') ?? []
         );
     }

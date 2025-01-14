@@ -21,7 +21,7 @@ class Permission extends \yii\rbac\Permission implements Configurable
     /**
      * {@inheritdoc}
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -34,7 +34,6 @@ class Permission extends \yii\rbac\Permission implements Configurable
 
     /**
      * @internal
-     * @param ManagerInterface $authManager
      * @return $this
      */
     protected function prepareChildren(ManagerInterface &$authManager)
@@ -78,7 +77,7 @@ class Permission extends \yii\rbac\Permission implements Configurable
     /**
      * @param array $children
      */
-    public function setChildren($children)
+    public function setChildren($children): void
     {
         $this->_children = $children;
     }

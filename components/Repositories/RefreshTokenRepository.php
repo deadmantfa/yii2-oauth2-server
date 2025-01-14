@@ -39,8 +39,6 @@ class RefreshTokenRepository extends Component implements RefreshTokenRepository
     /**
      * {@inheritdoc}
      *
-     * @param RefreshTokenEntityInterface|RefreshToken $refreshTokenEntity
-     * @return RefreshTokenEntityInterface|RefreshToken
      * @throws OAuthServerException|Exception|DateMalformedStringException
      */
     public function persistNewRefreshToken(RefreshTokenEntityInterface $refreshTokenEntity): void
@@ -76,7 +74,6 @@ class RefreshTokenRepository extends Component implements RefreshTokenRepository
      * @param $tokenId
      * @param int|null $duration
      * @param Dependency|null $dependency
-     * @return RefreshToken|null
      */
     protected function getCachedToken($tokenId, int $duration = null, Dependency $dependency = null): ?RefreshToken
     {
@@ -106,7 +103,7 @@ class RefreshTokenRepository extends Component implements RefreshTokenRepository
     public function revokeRefreshToken($tokenId): void
     {
         $token = $this->getCachedToken($tokenId);
-        if ($token) {
+        if ($token !== null) {
             $token->updateAttributes(['status' => RefreshToken::STATUS_REVOKED]);
             TagDependency::invalidate(Yii::$app->cache, static::class);
         }

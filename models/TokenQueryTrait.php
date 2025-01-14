@@ -10,8 +10,6 @@ trait TokenQueryTrait
 {
     /**
      * Filters active tokens.
-     *
-     * @return TokenQueryTrait
      */
     public function active(): static
     {
@@ -23,8 +21,6 @@ trait TokenQueryTrait
 
     /**
      * Filters revoked tokens.
-     *
-     * @return TokenQueryTrait
      */
     public function revoked(): static
     {
