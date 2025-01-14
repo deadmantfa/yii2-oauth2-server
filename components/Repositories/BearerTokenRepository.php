@@ -10,6 +10,5 @@ class BearerTokenRepository extends AccessTokenRepository
 {
     public function __construct()
     {
-        parent::__construct(AccessToken::TYPE_BEARER);
     }
 }

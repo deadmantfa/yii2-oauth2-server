@@ -43,7 +43,7 @@ class GrantedRule extends Rule
         }
 
         return in_array($item->name, array_map(
-                function (ScopeEntityInterface $scopeEntity) {
+                function (ScopeEntityInterface $scopeEntity): string {
                     return $scopeEntity->getIdentifier();
                 }, $identity->getScopes()
             ));
