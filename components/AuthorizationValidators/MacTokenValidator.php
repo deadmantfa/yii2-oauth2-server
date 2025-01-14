@@ -31,7 +31,7 @@ class MacTokenValidator implements AuthorizationValidatorInterface
     public function validateAuthorization(ServerRequestInterface $request): ServerRequestInterface
     {
         $authHeader = $request->getHeaderLine('Authorization');
-        if (empty($authHeader)) {
+        if ($authHeader === '' || $authHeader === '0') {
             throw OAuthServerException::accessDenied('Missing "Authorization" header.');
         }
 

@@ -104,7 +104,7 @@ class FirebaseGrant extends AbstractGrant
     protected function validateUser(ServerRequestInterface $request, ClientEntityInterface $client): UserEntityInterface
     {
         $firebaseId = $this->getRequestParameter('fid', $request);
-        if (!is_string($firebaseId) || empty($firebaseId)) {
+        if (!is_string($firebaseId) || ($firebaseId === '' || $firebaseId === '0')) {
             throw FirebaseException::invalidRequest('fid');
         }
 

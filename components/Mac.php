@@ -25,7 +25,7 @@ class Mac
 
         if ($params === null) {
             $header = $request->getHeader('authorization');
-            $params = empty($header) ? [] : $header[0];
+            $params = $header === [] ? [] : $header[0];
         }
 
         if (is_string($params)) {

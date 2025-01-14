@@ -69,14 +69,14 @@ class ScopeRepository implements ScopeRepositoryInterface, RepositoryCacheInterf
         ?string     $userIdentifier
     ): void
     {
-        if (empty($scopes)) {
+        if ($scopes === []) {
             $query->andWhere(['is_default' => true]);
         }
 
         $query->andWhere(['or', ['user_id' => null], ['user_id' => $userIdentifier]])
             ->andWhere(['or', ['grant_type' => null], ['grant_type' => Client::getGrantTypeId($grantType)]]);
 
-        if (!empty($scopes)) {
+        if ($scopes !== []) {
             $query->andWhere(['in', 'identifier', $scopes]);
         }
     }

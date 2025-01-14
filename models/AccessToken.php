@@ -164,7 +164,7 @@ class AccessToken extends ActiveRecord implements AccessTokenEntityInterface, Ra
 
     public function getScopes(): array
     {
-        if (empty($this->scopes)) {
+        if ($this->scopes === []) {
             $this->scopes = $this->grantedScopes;
         }
 
