@@ -103,7 +103,7 @@ class RefreshTokenRepository extends Component implements RefreshTokenRepository
     public function revokeRefreshToken($tokenId): void
     {
         $token = $this->getCachedToken($tokenId);
-        if ($token !== null) {
+        if ($token instanceof \deadmantfa\yii2\oauth2\server\models\RefreshToken) {
             $token->updateAttributes(['status' => RefreshToken::STATUS_REVOKED]);
             TagDependency::invalidate(Yii::$app->cache, static::class);
         }

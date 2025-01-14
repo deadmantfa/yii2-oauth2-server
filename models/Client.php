@@ -163,7 +163,7 @@ class Client extends ActiveRecord implements ClientEntityInterface
 
     public function getResponseType(): ResponseTypeInterface
     {
-        if ($this->_responseType === null) {
+        if (!$this->_responseType instanceof \League\OAuth2\Server\ResponseTypes\ResponseTypeInterface) {
             $this->_responseType = $this->token_type === self::TOKEN_TYPE_MAC
                 ? new MacTokenResponse()
                 : new BearerTokenResponse();

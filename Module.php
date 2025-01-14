@@ -184,7 +184,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
 
     public function getResponseType(): ResponseTypeInterface
     {
-        if ($this->_responseType === null) {
+        if (!$this->_responseType instanceof \League\OAuth2\Server\ResponseTypes\ResponseTypeInterface) {
             $this->_responseType = new MacTokenResponse();
         }
 

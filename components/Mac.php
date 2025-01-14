@@ -123,7 +123,7 @@ class Mac
      */
     public function getJwt(): Plain
     {
-        if ($this->_jwt === null) {
+        if (!$this->_jwt instanceof \Lcobucci\JWT\Token\Plain) {
             $this->_jwt = $this->jwtConfig->parser()->parse($this->getParam('access_token'));
         }
 

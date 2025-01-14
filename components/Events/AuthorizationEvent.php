@@ -35,7 +35,7 @@ class AuthorizationEvent
      */
     public function getToken(): ?Plain
     {
-        if ($this->_token === null) {
+        if (!$this->_token instanceof \Lcobucci\JWT\Token\Plain) {
             $responseBody = (string)$this->response->getBody();
             $response = Json::decode($responseBody);
 

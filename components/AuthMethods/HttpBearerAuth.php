@@ -32,7 +32,7 @@ class HttpBearerAuth extends AuthMethod
      */
     protected function getAuthorizationValidator(): AuthorizationValidatorInterface
     {
-        if ($this->_authorizationValidator === null) {
+        if (!$this->_authorizationValidator instanceof \League\OAuth2\Server\AuthorizationValidators\AuthorizationValidatorInterface) {
             $this->_authorizationValidator = new BearerTokenValidator($this->getAccessTokenRepository());
         }
         return $this->_authorizationValidator;
@@ -43,7 +43,7 @@ class HttpBearerAuth extends AuthMethod
      */
     protected function getAccessTokenRepository(): AccessTokenRepositoryInterface
     {
-        if ($this->_accessTokenRepository === null) {
+        if (!$this->_accessTokenRepository instanceof \League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface) {
             $this->_accessTokenRepository = Yii::createObject(AccessTokenRepositoryInterface::class);
         }
         return $this->_accessTokenRepository;
